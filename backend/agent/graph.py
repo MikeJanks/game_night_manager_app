@@ -25,7 +25,7 @@ def create_agent_graph(llm: BaseChatModel, tools: list[BaseTool], current_user: 
     })
     
     llm_with_tools = llm.bind_tools(tools)
-    suggestions_llm = llm.bind_tools(tools).with_structured_output(Suggestions)
+    suggestions_llm = llm.with_structured_output(Suggestions)
     tool_node = ToolNode(tools)
 
     def agent_node(state: AgentState) -> dict:

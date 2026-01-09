@@ -13,6 +13,14 @@ export const removeToken = () => {
   localStorage.removeItem(TOKEN_KEY)
 }
 
+// Helper function to ensure URL starts with /api prefix
+const ensureApiPrefix = (url) => {
+  if (url.startsWith('/api')) {
+    return url
+  }
+  return `/api${url.startsWith('/') ? url : `/${url}`}`
+}
+
 export const authenticatedFetch = async (url, options = {}) => {
   const token = getToken()
 
@@ -25,7 +33,8 @@ export const authenticatedFetch = async (url, options = {}) => {
     headers.Authorization = `Bearer ${token}`
   }
 
-  return fetch(`${API_BASE_URL}${url}`, {
+  const apiUrl = ensureApiPrefix(url)
+  return fetch(`${API_BASE_URL}${apiUrl}`, {
     ...options,
     headers,
   })
@@ -37,7 +46,8 @@ export const publicFetch = async (url, options = {}) => {
     ...(options.headers || {}),
   }
 
-  return fetch(`${API_BASE_URL}${url}`, {
+  const apiUrl = ensureApiPrefix(url)
+  return fetch(`${API_BASE_URL}${apiUrl}`, {
     ...options,
     headers,
   })

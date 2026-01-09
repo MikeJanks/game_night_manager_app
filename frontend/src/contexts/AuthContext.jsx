@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { authenticatedFetch, publicFetch, setToken, removeToken, getToken } from '../utils/api'
+import { authenticatedFetch, publicFetch, setToken, removeToken, getToken, API_BASE_URL } from '../utils/api'
 
 const AuthContext = createContext(null)
 
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     form.append('username', username)
     form.append('password', password)
 
-    const res = await fetch(`http://${window.location.hostname}:8000/auth/login`, {
+    const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

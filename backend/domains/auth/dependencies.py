@@ -71,7 +71,7 @@ async def get_user_manager(user_db=Depends(get_user_db)):
 
 
 # JWT Authentication Backend
-bearer_transport = BearerTransport(tokenUrl="auth/login")
+bearer_transport = BearerTransport(tokenUrl="api/auth/login")
 
 def get_jwt_strategy() -> JWTStrategy[User, UUID]:
     """Get JWT strategy for authentication."""

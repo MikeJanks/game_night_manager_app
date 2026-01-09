@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { authenticatedFetch } from '../utils/api'
 
-const API_URL = '/agent/chat'
+const API_URL = '/api/agent/chat'
 const STORAGE_KEY_PREFIX = 'agent_chat_conversation_'
 
 // localStorage helper functions
@@ -88,6 +88,7 @@ const Chat = () => {
   const [error, setError] = useState('')
   const messagesEndRef = useRef(null)
   const inputContainerRef = useRef(null)
+  const greetingSentRef = useRef(false)
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -104,15 +105,18 @@ const Chat = () => {
       if (persisted.messages.length > 0) {
         setMessages(persisted.messages)
         setSuggestions(persisted.suggestions)
+        greetingSentRef.current = true // Greeting already exists in conversation
       } else {
         // Clear state if no conversation for this user
         setMessages([])
         setSuggestions([])
+        greetingSentRef.current = false // Reset greeting flag for new user
       }
     } else {
       // No user logged in, clear everything
       setMessages([])
       setSuggestions([])
+      greetingSentRef.current = false
     }
   }, [user?.id])
 
@@ -135,6 +139,73 @@ const Chat = () => {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Auto-send greeting when chat is empty and user is loaded
+  useEffect(() => {
+    const sendGreeting = async () => {
+      // Only send if: user exists, messages empty, not loading, greeting not already sent
+      if (!user?.id || messages.length > 0 || isLoading || greetingSentRef.current) {
+        return
+      }
+
+      greetingSentRef.current = true
+      setIsLoading(true)
+      setError('')
+
+      try {
+        // Send empty messages array to trigger greeting
+        const res = await authenticatedFetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ messages: [] }),
+        })
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            logout()
+            navigate('/login')
+            return
+          }
+          throw new Error(`Request failed with status ${res.status}`)
+        }
+
+        const data = await res.json()
+        
+        // Handle response format with messages and suggestions
+        let backendMessages = []
+        let backendSuggestions = []
+        
+        if (data.messages) {
+          backendMessages = data.messages
+          backendSuggestions = data.suggestions || []
+        } else if (Array.isArray(data)) {
+          backendMessages = data
+          backendSuggestions = []
+        }
+
+        // Update messages and suggestions
+        setMessages(
+          backendMessages.map((m) => {
+            const [role, content] = Array.isArray(m) ? m : [m.role || 'assistant', m.content || '']
+            return {
+              role,
+              content,
+              failed: false,
+            }
+          }),
+        )
+        
+        setSuggestions(backendSuggestions)
+      } catch (err) {
+        console.error('Error sending greeting', err)
+        setError(err.message || 'Failed to load greeting')
+        greetingSentRef.current = false // Reset flag on error so it can retry
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    sendGreeting()
+  }, [user?.id, messages.length, isLoading, logout, navigate])
 
   const sendMessage = async () => {
     const text = inputValue.trim()
@@ -232,6 +303,7 @@ const Chat = () => {
     setSuggestions([])
     setInputValue('')
     setError('')
+    greetingSentRef.current = false // Reset greeting flag for new chat
     if (user?.id) {
       clearConversation(user.id)
     }
@@ -271,7 +343,7 @@ const Chat = () => {
       <div className="chat-container">
         <header className="chat-header">
           <div>
-            <h1>Chat Agent</h1>
+            <h1>🎲 Chat Agent</h1>
           </div>
           <div className="header-user-section">
             {user && (
