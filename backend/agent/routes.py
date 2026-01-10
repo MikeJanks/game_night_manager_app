@@ -1,9 +1,9 @@
 from typing import List
 from fastapi import APIRouter, HTTPException, Depends
 from langchain_core.messages import BaseMessage, AIMessage
-from database import SessionDep
-from domains.auth.dependencies import current_active_user
-from domains.users.model import User
+from backend.database import SessionDep
+from backend.domains.auth.dependencies import current_active_user
+from backend.domains.users.model import User
 
 from .schema import AgentRequest, AgentResponse, Message
 from .model import get_default_llm

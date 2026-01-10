@@ -10,7 +10,7 @@ from langchain_core.tools import BaseTool
 from .state import AgentState
 from .prompts.templates import SYSTEM_PROMPT_TEMPLATE, SUGGESTIONS_PROMPT_TEMPLATE
 from .schema import Suggestions
-from domains.users.model import User
+from backend.domains.users.model import User
 
 def create_agent_graph(llm: BaseChatModel, tools: list[BaseTool], current_user: User) -> StateGraph:
     # Validate required user fields exist

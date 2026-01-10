@@ -2,20 +2,19 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 # Load .env from project root (parent directory of backend)
-root_dir = Path(__file__).parent.parent
-load_dotenv(dotenv_path=root_dir / ".env")
+load_dotenv()
 
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 # Import routers
-from domains.games.routes import router as games_router
-from domains.users.routes import router as friends_router
-from domains.events.routes import router as events_router
-from agent.routes import router as agent_router
-from domains.auth.dependencies import fastapi_users, jwt_authentication
-from domains.users.schemas import UserPublic, UserCreate, UserUpdate
+from backend.domains.games.routes import router as games_router
+from backend.domains.users.routes import router as friends_router
+from backend.domains.events.routes import router as events_router
+from backend.agent.routes import router as agent_router
+from backend.domains.auth.dependencies import fastapi_users, jwt_authentication
+from backend.domains.users.schemas import UserPublic, UserCreate, UserUpdate
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -40,15 +39,14 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "ok"}
 
-api.include_router(fastapi_users.get_register_router(UserPublic, UserCreate), prefix="/auth", tags=["auth"])
-api.include_router(fastapi_users.get_auth_router(jwt_authentication), prefix="/auth", tags=["auth"])
-api.include_router(fastapi_users.get_users_router(UserPublic, UserUpdate), prefix="/auth", tags=["auth"])
-api.include_router(games_router)
-api.include_router(friends_router)
-api.include_router(events_router)
-api.include_router(agent_router)
+# api.include_router(fastapi_users.get_register_router(UserPublic, UserCreate), prefix="/auth", tags=["auth"])
+# api.include_router(fastapi_users.get_auth_router(jwt_authentication), prefix="/auth", tags=["auth"])
+# api.include_router(fastapi_users.get_users_router(UserPublic, UserUpdate), prefix="/auth", tags=["auth"])
+# api.include_router(games_router)
+# api.include_router(friends_router)
+# api.include_router(events_router)
+# api.include_router(agent_router)
 
 app.include_router(api)
 
-# cd backend
-# fastapi dev main.py --host 0.0.0.0 --port 8000
+# fastapi dev backend/main.py --host 0.0.0.0 --port 8000

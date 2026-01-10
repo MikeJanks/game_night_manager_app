@@ -8,9 +8,9 @@ from .model import Event, EventMembership, EventMessage
 from .schemas import (
     EventCreate, EventPlanUpdate, EventRead, EventMembershipRead
 )
-from domains.users.model import User, Friendship
-from domains.games.model import Game
-from domains.common.enums import EventStatus, MembershipRole, MembershipStatus, MessageType, FriendshipStatus
+from backend.domains.users.model import User, Friendship
+from backend.domains.games.model import Game
+from backend.domains.common.enums import EventStatus, MembershipRole, MembershipStatus, MessageType, FriendshipStatus
 
 
 # Event service functions

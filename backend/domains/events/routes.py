@@ -3,10 +3,10 @@ from sqlmodel import Session
 from uuid import UUID
 from typing import Optional
 
-from database import SessionDep
-from domains.auth.dependencies import current_active_user
-from domains.users.model import User
-from domains.common.enums import EventStatus, MembershipRole
+from backend.database import SessionDep
+from backend.domains.auth.dependencies import current_active_user
+from backend.domains.users.model import User
+from backend.domains.common.enums import EventStatus, MembershipRole
 from .schemas import (
     EventCreate, EventPlanUpdate, EventRead, EventList,
     InviteCreate, InviteResponse,
@@ -239,7 +239,7 @@ def post_message(
     try:
         message = event_service.post_message(current_user.id, event_id, payload.content, session)
         # Get username
-        from domains.users.model import User
+        from backend.domains.users.model import User
         user = session.get(User, message.user_id)
         username = user.username if user else None
         

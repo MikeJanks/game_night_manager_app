@@ -6,7 +6,7 @@ from datetime import datetime
 
 from . import service as event_service
 from .schemas import EventCreate, EventPlanUpdate, InviteCreate
-from domains.common.enums import EventStatus, MembershipRole
+from backend.domains.common.enums import EventStatus, MembershipRole
 
 
 def create_event_tools(session: Session, current_user_id: UUID):

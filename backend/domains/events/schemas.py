@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
-from domains.common.enums import EventStatus, MembershipRole, MembershipStatus, MessageType
+from backend.domains.common.enums import EventStatus, MembershipRole, MembershipStatus, MessageType
 
 
 class EventCreate(BaseModel):

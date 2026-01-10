@@ -8,8 +8,8 @@ from fastapi_users import FastAPIUsers
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
 from sqlmodel import Session, select
 
-from domains.users.model import User
-from database import get_session
+from backend.domains.users.model import User
+from backend.database import get_session
 
 
 class CustomUserDatabase(SQLModelUserDatabase[User, UUID]):
