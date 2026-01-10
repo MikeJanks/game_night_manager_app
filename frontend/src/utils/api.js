@@ -1,6 +1,6 @@
 // Basic API utilities for the frontend
 
-const API_BASE_URL = `http://${window.location.hostname}:8000`
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 const TOKEN_KEY = 'auth_token'
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY) || null
@@ -11,14 +11,6 @@ export const setToken = (token) => {
 
 export const removeToken = () => {
   localStorage.removeItem(TOKEN_KEY)
-}
-
-// Helper function to ensure URL starts with /api prefix
-const ensureApiPrefix = (url) => {
-  if (url.startsWith('/api')) {
-    return url
-  }
-  return `/api${url.startsWith('/') ? url : `/${url}`}`
 }
 
 export const authenticatedFetch = async (url, options = {}) => {
@@ -33,8 +25,7 @@ export const authenticatedFetch = async (url, options = {}) => {
     headers.Authorization = `Bearer ${token}`
   }
 
-  const apiUrl = ensureApiPrefix(url)
-  return fetch(`${API_BASE_URL}${apiUrl}`, {
+  return fetch(`${API_BASE_URL}${url}`, {
     ...options,
     headers,
   })
@@ -46,8 +37,7 @@ export const publicFetch = async (url, options = {}) => {
     ...(options.headers || {}),
   }
 
-  const apiUrl = ensureApiPrefix(url)
-  return fetch(`${API_BASE_URL}${apiUrl}`, {
+  return fetch(`${API_BASE_URL}${url}`, {
     ...options,
     headers,
   })

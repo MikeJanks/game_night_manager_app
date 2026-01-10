@@ -1,5 +1,9 @@
 from dotenv import load_dotenv
-load_dotenv()
+from pathlib import Path
+
+# Load .env from project root (parent directory of backend)
+root_dir = Path(__file__).parent.parent
+load_dotenv(dotenv_path=root_dir / ".env")
 
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,6 +34,12 @@ app.add_middleware(
 
 # Register routers
 api = APIRouter(prefix="/api")
+
+@api.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "ok"}
+
 api.include_router(fastapi_users.get_register_router(UserPublic, UserCreate), prefix="/auth", tags=["auth"])
 api.include_router(fastapi_users.get_auth_router(jwt_authentication), prefix="/auth", tags=["auth"])
 api.include_router(fastapi_users.get_users_router(UserPublic, UserUpdate), prefix="/auth", tags=["auth"])
