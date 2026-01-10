@@ -8,7 +8,6 @@ const __dirname = path.dirname(__filename)
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/frontend',
   plugins: [react()],
   envDir: path.resolve(__dirname, '..'), // Point to project root for .env files
   server: {
