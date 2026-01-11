@@ -3,6 +3,7 @@
   "buildCommand": "uv sync --frozen && npm install --prefix frontend && npm run build --prefix frontend",
   "outputDirectory": "frontend/dist",
   "rewrites": [
+    { "handle": "filesystem" },
     { "source": "/api/(.*)", "destination": "/api/index.py" },
     { "source": "/(.*)", "destination": "/frontend/index.html" }
   ]
