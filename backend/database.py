@@ -5,7 +5,7 @@ from fastapi import Depends
 from sqlmodel import Session, create_engine
 
 
-database_url = os.getenv("DATABASE_URL", "sqlite:///database.db")
+database_url = os.getenv("DATABASE_URL")
 
 connect_args = {"check_same_thread": False} if database_url.startswith("sqlite://") else {}
 

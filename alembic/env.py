@@ -1,20 +1,21 @@
 from logging.config import fileConfig
-import os
-from dotenv import load_dotenv
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
 
-# Load environment variables from .env file
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
 load_dotenv()
 
-# Import SQLModel metadata
+# Import SQLModel
 from sqlmodel import SQLModel
 
 # Import all models so they register with SQLModel.metadata
-# This ensures Alembic can detect all tables
+# This must happen before we set target_metadata
 from backend.domains.users.model import User, Friendship
 from backend.domains.games.model import Game
 from backend.domains.events.model import Event, EventMembership, EventMessage
@@ -28,11 +29,14 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Get DATABASE_URL from environment variable
-database_url = os.getenv("DATABASE_URL", "sqlite:///database.db")
-
-# Override sqlalchemy.url with DATABASE_URL from environment
-config.set_main_option("sqlalchemy.url", database_url)
+# Get DATABASE_URL from environment
+database_url = os.getenv("DATABASE_URL")
+if database_url:
+    config.set_main_option("sqlalchemy.url", database_url)
+else:
+    # Use a dummy PostgreSQL URL for migration generation when DATABASE_URL is not set
+    # This allows generating migrations without a live database connection
+    config.set_main_option("sqlalchemy.url", "postgresql://user:pass@localhost/dbname")
 
 # add your model's MetaData object here
 # for 'autogenerate' support
