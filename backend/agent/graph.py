@@ -26,7 +26,7 @@ def create_agent_graph(llm: BaseChatModel, tools: list[BaseTool], current_user: 
     
     llm_with_tools = llm.bind_tools(tools)
     suggestions_llm = llm.with_config(
-        configurable={"model_kwargs": {"tool_choice": "auto"}}
+        configurable={"model_kwargs": {"tool_choice": "None"}}
     ).with_structured_output(Suggestions)
     tool_node = ToolNode(tools)
 
