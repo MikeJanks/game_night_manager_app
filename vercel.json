@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "uv sync --frozen && npm install --prefix frontend && npm run build --prefix frontend",
+  "buildCommand": "uv run alembic upgrade head && npm install --prefix frontend && npm run build --prefix frontend",
   "outputDirectory": "frontend/dist",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.py" },
