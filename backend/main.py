@@ -39,13 +39,13 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "ok"}
 
-# api.include_router(fastapi_users.get_register_router(UserPublic, UserCreate), prefix="/auth", tags=["auth"])
-# api.include_router(fastapi_users.get_auth_router(jwt_authentication), prefix="/auth", tags=["auth"])
-# api.include_router(fastapi_users.get_users_router(UserPublic, UserUpdate), prefix="/auth", tags=["auth"])
-# api.include_router(games_router)
-# api.include_router(friends_router)
-# api.include_router(events_router)
-# api.include_router(agent_router)
+api.include_router(fastapi_users.get_register_router(UserPublic, UserCreate), prefix="/auth", tags=["auth"])
+api.include_router(fastapi_users.get_auth_router(jwt_authentication), prefix="/auth", tags=["auth"])
+api.include_router(fastapi_users.get_users_router(UserPublic, UserUpdate), prefix="/auth", tags=["auth"])
+api.include_router(games_router)
+api.include_router(friends_router)
+api.include_router(events_router)
+api.include_router(agent_router)
 
 app.include_router(api)
 
