@@ -8,8 +8,8 @@ from fastapi_users import FastAPIUsers
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
 from sqlmodel import Session, select
 
-from domains.users.model import User
-from database import get_session
+from backend.domains.users.model import User
+from backend.database import get_session
 
 
 class CustomUserDatabase(SQLModelUserDatabase[User, UUID]):
@@ -71,7 +71,7 @@ async def get_user_manager(user_db=Depends(get_user_db)):
 
 
 # JWT Authentication Backend
-bearer_transport = BearerTransport(tokenUrl="auth/login")
+bearer_transport = BearerTransport(tokenUrl="api/auth/login")
 
 def get_jwt_strategy() -> JWTStrategy[User, UUID]:
     """Get JWT strategy for authentication."""

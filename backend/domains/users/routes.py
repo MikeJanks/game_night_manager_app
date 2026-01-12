@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from uuid import UUID
 
-from database import SessionDep
-from domains.auth.dependencies import current_active_user
-from domains.users.model import User
+from backend.database import SessionDep
+from backend.domains.auth.dependencies import current_active_user
+from backend.domains.users.model import User
 from .schemas import (
     FriendRequestCreate, FriendList, FriendRequestList, FriendRead, FriendRequestRead
 )

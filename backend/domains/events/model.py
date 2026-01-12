@@ -2,8 +2,8 @@ from sqlmodel import Field, SQLModel
 from datetime import datetime
 from typing import Optional
 from uuid import UUID, uuid4
-from domains.common.enums import EventStatus, MembershipRole, MembershipStatus, MessageType
-from domains.common.fields import fk_cascade
+from backend.domains.common.enums import EventStatus, MembershipRole, MembershipStatus, MessageType
+from backend.domains.common.fields import fk_cascade
 
 
 class Event(SQLModel, table=True):

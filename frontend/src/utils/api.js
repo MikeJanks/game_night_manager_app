@@ -1,6 +1,6 @@
 // Basic API utilities for the frontend
 
-const API_BASE_URL = `http://${window.location.hostname}:8000`
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 const TOKEN_KEY = 'auth_token'
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY) || null

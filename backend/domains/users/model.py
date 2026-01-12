@@ -3,8 +3,8 @@ from sqlmodel import Field, SQLModel
 from datetime import datetime
 from typing import Optional
 from uuid import UUID, uuid4
-from domains.common.enums import FriendshipStatus
-from domains.common.fields import fk_cascade
+from backend.domains.common.enums import FriendshipStatus
+from backend.domains.common.fields import fk_cascade
 
 
 class User(SQLModelBaseUserDB, table=True):

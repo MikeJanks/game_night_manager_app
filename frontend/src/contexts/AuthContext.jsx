@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchCurrentUser = useCallback(async () => {
     try {
-      const res = await authenticatedFetch('/auth/me')
+      const res = await authenticatedFetch('/api/auth/me')
       if (res.ok) {
         const data = await res.json()
         setUser(data)
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     form.append('username', username)
     form.append('password', password)
 
-    const res = await fetch(`http://${window.location.hostname}:8000/auth/login`, {
+    const res = await publicFetch('/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const signup = async (username, email, password) => {
-    const res = await publicFetch('/auth/register', {
+    const res = await publicFetch('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify({ username, email, password }),
     })

@@ -1,22 +1,20 @@
 from dotenv import load_dotenv
+from pathlib import Path
+
+# Load .env from project root (parent directory of backend)
 load_dotenv()
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-# Import models so they register with SQLModel.metadata
-from domains.users.model import User, Friendship
-from domains.games.model import Game
-from domains.events.model import Event, EventMembership, EventMessage
-
 # Import routers
-from domains.games.routes import router as games_router
-from domains.users.routes import router as friends_router
-from domains.events.routes import router as events_router
-from agent.routes import router as agent_router
-from domains.auth.dependencies import fastapi_users, jwt_authentication
-from domains.users.schemas import UserPublic, UserCreate, UserUpdate
+from backend.domains.games.routes import router as games_router
+from backend.domains.users.routes import router as friends_router
+from backend.domains.events.routes import router as events_router
+from backend.agent.routes import router as agent_router
+from backend.domains.auth.dependencies import fastapi_users, jwt_authentication
+from backend.domains.users.schemas import UserPublic, UserCreate, UserUpdate
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -25,7 +23,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # Add CORS middleware
-# Allow all origins in development for testing from mobile devices
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins for development
@@ -35,13 +32,21 @@ app.add_middleware(
 )
 
 # Register routers
-app.include_router(fastapi_users.get_register_router(UserPublic, UserCreate), prefix="/auth", tags=["auth"])
-app.include_router(fastapi_users.get_auth_router(jwt_authentication), prefix="/auth", tags=["auth"])
-app.include_router(fastapi_users.get_users_router(UserPublic, UserUpdate), prefix="/auth", tags=["auth"])
-app.include_router(games_router)
-app.include_router(friends_router)
-app.include_router(events_router)
-app.include_router(agent_router)
+api = APIRouter(prefix="/api")
 
-# cd backend
-# fastapi dev main.py --host 0.0.0.0 --port 8000
+@api.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "ok"}
+
+api.include_router(fastapi_users.get_register_router(UserPublic, UserCreate), prefix="/auth", tags=["auth"])
+api.include_router(fastapi_users.get_auth_router(jwt_authentication), prefix="/auth", tags=["auth"])
+api.include_router(fastapi_users.get_users_router(UserPublic, UserUpdate), prefix="/auth", tags=["auth"])
+api.include_router(games_router)
+api.include_router(friends_router)
+api.include_router(events_router)
+api.include_router(agent_router)
+
+app.include_router(api)
+
+# fastapi dev backend/main.py --host 0.0.0.0 --port 8000

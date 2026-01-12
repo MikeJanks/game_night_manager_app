@@ -10,7 +10,7 @@ from langchain_core.tools import BaseTool
 from .state import AgentState
 from .prompts.templates import SYSTEM_PROMPT_TEMPLATE, SUGGESTIONS_PROMPT_TEMPLATE
 from .schema import Suggestions
-from domains.users.model import User
+from backend.domains.users.model import User
 
 def create_agent_graph(llm: BaseChatModel, tools: list[BaseTool], current_user: User) -> StateGraph:
     # Validate required user fields exist
@@ -25,7 +25,9 @@ def create_agent_graph(llm: BaseChatModel, tools: list[BaseTool], current_user: 
     })
     
     llm_with_tools = llm.bind_tools(tools)
-    suggestions_llm = llm.bind_tools(tools).with_structured_output(Suggestions)
+    suggestions_llm = llm.with_config(
+        configurable={"model_kwargs": {"tool_choice": "None"}}
+    ).with_structured_output(Suggestions)
     tool_node = ToolNode(tools)
 
     def agent_node(state: AgentState) -> dict:

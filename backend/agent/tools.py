@@ -4,9 +4,9 @@ from typing import List
 from uuid import UUID
 from sqlmodel import Session
 from langchain_core.tools import BaseTool
-from domains.users.tools import create_user_tools, create_friend_tools
-from domains.games.tools import create_game_tools
-from domains.events.tools import create_event_tools
+from backend.domains.users.tools import create_user_tools, create_friend_tools
+from backend.domains.games.tools import create_game_tools
+from backend.domains.events.tools import create_event_tools
 
 
 def create_custom_agent_tools() -> List[BaseTool]:

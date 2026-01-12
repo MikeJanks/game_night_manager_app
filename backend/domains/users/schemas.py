@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 from fastapi_users.schemas import BaseUserCreate, BaseUserUpdate, BaseUser
-from domains.common.enums import FriendshipStatus
+from backend.domains.common.enums import FriendshipStatus
 
 
 class UserPublic(BaseUser):

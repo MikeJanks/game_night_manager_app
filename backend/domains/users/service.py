@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from uuid import UUID
 from .model import User, Friendship
 from .schemas import UserCreate, UserUpdate
-from domains.common.enums import FriendshipStatus
+from backend.domains.common.enums import FriendshipStatus
 
 
 def get_all_users(session: Session) -> List[User]:
