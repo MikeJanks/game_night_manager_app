@@ -10,7 +10,6 @@ from langchain_core.tools import BaseTool
 from .state import AgentState
 from .prompts.templates import SYSTEM_PROMPT_TEMPLATE, SUGGESTIONS_PROMPT_TEMPLATE
 from .schema import Suggestions
-from .json_llm import invoke_json_llm
 from backend.domains.users.model import User
 
 def create_agent_graph(llm: BaseChatModel, tools: list[BaseTool], current_user: User) -> StateGraph:
@@ -36,8 +35,9 @@ def create_agent_graph(llm: BaseChatModel, tools: list[BaseTool], current_user: 
     def suggestions_node(state: AgentState) -> dict:
         suggestions_prompt = SUGGESTIONS_PROMPT_TEMPLATE.format_messages()
         model_msgs = suggestions_prompt + state["messages"]
-        result = invoke_json_llm(llm, model_msgs, Suggestions)
-        
+        structured_llm = llm.with_structured_output(Suggestions, method="json_schema")
+        result = structured_llm.invoke(model_msgs)
+
         suggestions_list = result.suggestions if result.suggestions else []
         suggestions_list = suggestions_list[:5]
         
