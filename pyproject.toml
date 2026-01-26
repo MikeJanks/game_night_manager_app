@@ -2,7 +2,7 @@
 name = "game-night-manager-app-vercel"
 version = "0.1.0"
 description = "Add your description here"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
     "alembic==1.14.0",
     "annotated-doc==0.0.4",
