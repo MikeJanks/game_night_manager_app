@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-from pathlib import Path
 
 # Load .env from project root (parent directory of backend)
 load_dotenv()
