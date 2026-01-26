@@ -94,4 +94,4 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["backend"]
+packages = ["api"]
