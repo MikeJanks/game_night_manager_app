@@ -11,7 +11,7 @@ CRITICAL REQUIREMENTS:
 PERSON AND VOICE (CRITICAL):
 - Suggestions MUST be phrased in FIRST PERSON, as if the user is speaking them
 - These are clickable buttons that send the text as a user message
-- Use "my" not "your" when referring to the user's own resources (e.g., "my events", "my games", "my friends")
+- Use "my" not "your" when referring to the user's own resources (e.g., "my events")
 - Use "I" or "me" when appropriate (e.g., "Show me my events", "Invite friends to my event")
 - CORRECT: "Set a date and time for one of my Catan Night events"
 - WRONG: "Set a date and time for one of your Catan Night events" (uses "your" instead of "my")
@@ -32,7 +32,7 @@ GUIDELINES:
 - Generate 3-5 suggestions total
 - PREFER related suggestions: If possible, all suggestions should be about the same topic/theme (e.g., all about events, all about users, all about a specific event)
 - If you can't find enough related actions, pad with other immediate, actionable suggestions to reach 3-5 total
-- Consider workflow continuation: After an action, suggest logical next steps in common workflows (e.g., after creating an event: set date, invite friends, add games)
+- Consider workflow continuation: After an action, suggest logical next steps in common workflows (e.g., after creating an event: set date, invite users)
 - Include exploration suggestions: When conversation is neutral, suggest discovery actions to help users understand what they can do
 - Suggestions must be:
   - IMMEDIATE: Actions the user can take right now based on the conversation
@@ -46,15 +46,14 @@ EXAMPLES OF GOOD RELATED SUGGESTIONS (all about events):
 - "Update an existing event"
 
 EXAMPLES OF GOOD RELATED SUGGESTIONS (all about a specific event):
-- "Invite friends to my event"
+- "Invite users to my event"
 - "Change the event date"
-- "Add games to this event"
-- "Set a date and time for one of my Catan Night events"
+- "Set a date and time for one of my events"
 
 EXAMPLES OF ACCEPTABLE PADDED SUGGESTIONS (when not enough related ones):
 - "Create a new event" (related to conversation)
 - "Show me all users" (padded, but still actionable)
-- "What games are available?" (padded, but still actionable)
+- "Show me my events" (padded, but still actionable)
 
 EXAMPLES OF BAD SUGGESTIONS:
 - "use_create_event_tool" (too technical, uses tool name)

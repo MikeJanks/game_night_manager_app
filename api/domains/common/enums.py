@@ -17,11 +17,5 @@ class MembershipStatus(str, Enum):
     ACCEPTED = "ACCEPTED"
 
 
-class MessageType(str, Enum):
-    USER = "USER"
-    SYSTEM = "SYSTEM"
-
-
-class FriendshipStatus(str, Enum):
-    PENDING = "PENDING"
-    ACCEPTED = "ACCEPTED"
+class ExternalSource(str, Enum):
+    DISCORD = "discord"
