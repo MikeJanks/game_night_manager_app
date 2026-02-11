@@ -2,7 +2,6 @@ from typing import Dict, Any, Optional
 from langchain_core.tools import tool
 from sqlmodel import Session
 from uuid import UUID
-from datetime import datetime
 
 from . import service as event_service
 from .schemas import EventCreate, EventPlanUpdate, InviteCreate
@@ -114,33 +113,22 @@ def create_event_tools(session: Session, current_user_id: UUID):
         return {"events": events_data}
     
     @tool
-    def update_event_plan(
-        event_id: str,
-        event_datetime: Optional[str] = None,
-        location_or_link: Optional[str] = None,
-        event_name: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def update_event_plan(event_id: str, event_plan_update: EventPlanUpdate) -> Dict[str, Any]:
         """Update event plan fields.
         
         ⚠️ WRITE OPERATION: This modifies the database. Present information and request confirmation before calling.
         
         Args:
             event_id: The UUID of the event
-            event_datetime: Optional new event datetime (ISO format string)
-            location_or_link: Optional new location or link
-            event_name: Optional new event name
+            event_plan_update: Object containing only the fields to update. Omit any field to leave it unchanged.
+                - event_datetime: Optional new event datetime (ISO format string, e.g. 2025-02-15T19:00:00)
+                - location_or_link: Optional new location or link
+                - event_name: Optional new event name
         
         Returns a dict with an 'event' key containing the updated event.
+        Only include the fields you want to change in event_plan_update - omitted fields remain unchanged.
         """
-        dt = None
-        if event_datetime:
-            try:
-                dt = datetime.fromisoformat(event_datetime.replace('Z', '+00:00'))
-            except:
-                pass
-        
-        payload = EventPlanUpdate(event_datetime=dt, location_or_link=location_or_link, event_name=event_name)
-        event = event_service.update_event_plan(current_user_id, UUID(event_id), payload, session)
+        event = event_service.update_event_plan(current_user_id, UUID(event_id), event_plan_update, session)
         event_data = event_service.get_event_scoped(current_user_id, event.id, session)
         return {"event": event_data}
     

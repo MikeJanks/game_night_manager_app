@@ -59,22 +59,20 @@ def create_user_tools(session: Session):
         return {"user": user.model_dump()}
     
     @tool
-    def update_user(user_id: str, username: Optional[str] = None,
-                   email: Optional[str] = None) -> Dict[str, Any]:
+    def update_user(user_id: str, user_update: UserUpdate) -> Dict[str, Any]:
         """Update an existing user's information.
         
         ⚠️ WRITE OPERATION: This modifies the database. Present information and request confirmation before calling.
         
         Args:
             user_id: The UUID of the user to update (string)
-            username: Optional new username (must be unique if provided)
-            email: Optional new email address (must be unique if provided)
+            user_update: Object containing only the fields to update. Omit any field to leave it unchanged.
+                - username: Optional new username (must be unique if provided)
         
         Returns a dict with a 'user' key containing the updated user information.
-        Only provide the fields you want to change - other fields remain unchanged.
-        Raises an error if the user doesn't exist or if the new username/email already exists.
+        Only include the fields you want to change in user_update - omitted fields remain unchanged.
+        Raises an error if the user doesn't exist or if the new username already exists.
         """
-        user_update = UserUpdate(username=username, email=email)
         user = user_service.update_user(UUID(user_id), user_update, session)
         return {"user": user.model_dump()}
     
