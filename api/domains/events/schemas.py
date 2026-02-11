@@ -2,12 +2,12 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
-from api.domains.common.enums import EventStatus, MembershipRole, MembershipStatus, MessageType
+from api.domains.common.enums import EventStatus, MembershipRole, MembershipStatus
 
 
 class EventCreate(BaseModel):
     """Request schema for creating an event."""
-    game_id: UUID
+    game_name: str
     event_name: str
 
 
@@ -22,8 +22,7 @@ class EventMembershipRead(BaseModel):
     """Response schema for event membership."""
     role: MembershipRole
     status: MembershipStatus
-    confirmed_plan_version: Optional[int] = None
-    
+
     class Config:
         from_attributes = True
 
@@ -36,11 +35,12 @@ class EventCounts(BaseModel):
 
 
 class EventMember(BaseModel):
-    """Response schema for event member."""
-    user_id: UUID
-    username: str
+    """Response schema for event member (app user or external)."""
+    user_id: Optional[UUID] = None
+    username: Optional[str] = None
+    display_name: Optional[str] = None
     status: MembershipStatus
-    
+
     class Config:
         from_attributes = True
 
@@ -48,19 +48,15 @@ class EventMember(BaseModel):
 class EventRead(BaseModel):
     """Response schema for event detail."""
     id: UUID
-    game_id: UUID
-    game_name: Optional[str] = None
+    game_name: str
     event_name: str
     event_datetime: Optional[datetime] = None
     location_or_link: Optional[str] = None
     status: EventStatus
-    plan_version: int
-    plan_updated_at: datetime
     my_membership: Optional[EventMembershipRead] = None
-    is_confirmed_for_plan: bool
     hosts: List[EventMember]
     attendees: List[EventMember]
-    
+
     class Config:
         from_attributes = True
 
@@ -80,27 +76,3 @@ class InviteResponse(BaseModel):
     """Response schema for invite operations."""
     success: bool
     message: str
-
-
-class MessageCreate(BaseModel):
-    """Request schema for creating a message."""
-    content: str
-
-
-class MessageRead(BaseModel):
-    """Response schema for message data."""
-    id: UUID
-    event_id: UUID
-    user_id: Optional[UUID] = None
-    username: Optional[str] = None
-    content: str
-    message_type: MessageType
-    created_at: datetime
-    
-    class Config:
-        from_attributes = True
-
-
-class MessageList(BaseModel):
-    """Response schema for list of messages."""
-    messages: list[MessageRead]

@@ -8,8 +8,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 # Import routers
-from api.domains.games.routes import router as games_router
-from api.domains.users.routes import router as friends_router
 from api.domains.events.routes import router as events_router
 from api.agents.chat.routes import router as agent_router
 from api.domains.auth.dependencies import fastapi_users, jwt_authentication
@@ -41,8 +39,6 @@ async def health_check():
 api.include_router(fastapi_users.get_register_router(UserPublic, UserCreate), prefix="/auth", tags=["auth"])
 api.include_router(fastapi_users.get_auth_router(jwt_authentication), prefix="/auth", tags=["auth"])
 api.include_router(fastapi_users.get_users_router(UserPublic, UserUpdate), prefix="/auth", tags=["auth"])
-api.include_router(games_router)
-api.include_router(friends_router)
 api.include_router(events_router)
 api.include_router(agent_router)
 

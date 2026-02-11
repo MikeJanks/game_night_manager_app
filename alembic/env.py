@@ -16,9 +16,8 @@ from sqlmodel import SQLModel
 
 # Import all models so they register with SQLModel.metadata
 # This must happen before we set target_metadata
-from api.domains.users.model import User, Friendship
-from api.domains.games.model import Game
-from api.domains.events.model import Event, EventMembership, EventMessage
+from api.domains.users.model import User
+from api.domains.events.model import Event, EventMembership
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

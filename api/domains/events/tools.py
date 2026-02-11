@@ -13,18 +13,18 @@ def create_event_tools(session: Session, current_user_id: UUID):
     """Create event-related tools bound to a database session and user."""
     
     @tool
-    def create_event(game_id: str, event_name: str) -> Dict[str, Any]:
+    def create_event(game_name: str, event_name: str) -> Dict[str, Any]:
         """Create a new event.
         
         ⚠️ WRITE OPERATION: This modifies the database. Present information and request confirmation before calling.
         
         Args:
-            game_id: The UUID of the game for this event
+            game_name: The name of the game for this event
             event_name: The name of the event
         
         Returns a dict with an 'event' key containing the created event.
         """
-        payload = EventCreate(game_id=UUID(game_id), event_name=event_name)
+        payload = EventCreate(game_name=game_name, event_name=event_name)
         event = event_service.create_event(current_user_id, payload, session)
         event_data = event_service.get_event_scoped(current_user_id, event.id, session)
         return {"event": event_data}
@@ -85,7 +85,7 @@ def create_event_tools(session: Session, current_user_id: UUID):
         limit: int = 100,
         offset: int = 0
     ) -> Dict[str, Any]:
-        """Get all events where the current user is directly a member (excludes friend events).
+        """Get all events where the current user is a member.
         
         Args:
             status_filter: Optional status filter (PLANNING, CONFIRMED, CANCELLED)
@@ -252,23 +252,6 @@ def create_event_tools(session: Session, current_user_id: UUID):
             return {"success": False, "error": str(e)}
     
     @tool
-    def confirm_plan(event_id: str) -> Dict[str, Any]:
-        """Confirm current plan version.
-        
-        ⚠️ WRITE OPERATION: This modifies the database. Present information and request confirmation before calling.
-        
-        Args:
-            event_id: The UUID of the event
-        
-        Returns a dict with success status.
-        """
-        try:
-            event_service.confirm_current_plan(current_user_id, UUID(event_id), session)
-            return {"success": True, "message": "Plan confirmed"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-    
-    @tool
     def leave_event(event_id: str) -> Dict[str, Any]:
         """Leave an event.
         
@@ -285,24 +268,6 @@ def create_event_tools(session: Session, current_user_id: UUID):
         except Exception as e:
             return {"success": False, "error": str(e)}
     
-    @tool
-    def post_message(event_id: str, content: str) -> Dict[str, Any]:
-        """Post a message to an event.
-        
-        ⚠️ WRITE OPERATION: This modifies the database. Present information and request confirmation before calling.
-        
-        Args:
-            event_id: The UUID of the event
-            content: The message content
-        
-        Returns a dict with the created message.
-        """
-        try:
-            message = event_service.post_message(current_user_id, UUID(event_id), content, session)
-            return {"message": message.model_dump()}
-        except Exception as e:
-            return {"message": None, "error": str(e)}
-    
     return [
         create_event,
         get_event,
@@ -315,7 +280,5 @@ def create_event_tools(session: Session, current_user_id: UUID):
         invite_user,
         accept_invite,
         decline_invite,
-        confirm_plan,
         leave_event,
-        post_message,
     ]

@@ -9,8 +9,7 @@ from api.domains.users.model import User
 from api.domains.common.enums import EventStatus, MembershipRole
 from .schemas import (
     EventCreate, EventPlanUpdate, EventRead, EventList,
-    InviteCreate, InviteResponse,
-    MessageCreate, MessageList, MessageRead
+    InviteCreate, InviteResponse
 )
 from . import service as event_service
 
@@ -172,25 +171,6 @@ def decline_invite(
         )
 
 
-@router.post("/{event_id}/plan/confirm", status_code=status.HTTP_200_OK)
-def confirm_current_plan(
-    event_id: UUID,
-    current_user: User = Depends(current_active_user),
-    session: SessionDep = None
-):
-    """Confirm current plan version."""
-    try:
-        event_service.confirm_current_plan(current_user.id, event_id, session)
-        return {"success": True, "message": "Plan confirmed"}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-
-
 @router.post("/{event_id}/leave", status_code=status.HTTP_200_OK)
 def leave_event(
     event_id: UUID,
@@ -210,52 +190,3 @@ def leave_event(
         )
 
 
-# Messages routes
-
-@router.get("/{event_id}/messages", response_model=MessageList)
-def list_messages(
-    event_id: UUID,
-    before: Optional[UUID] = Query(None),
-    limit: int = Query(50, ge=1, le=100),
-    current_user: User = Depends(current_active_user),
-    session: SessionDep = None
-):
-    """List messages for an event."""
-    messages_data = event_service.list_messages(
-        current_user.id, event_id, before=before, limit=limit, session=session
-    )
-    messages = [MessageRead(**m) for m in messages_data]
-    return MessageList(messages=messages)
-
-
-@router.post("/{event_id}/messages", response_model=MessageRead, status_code=status.HTTP_201_CREATED)
-def post_message(
-    event_id: UUID,
-    payload: MessageCreate,
-    current_user: User = Depends(current_active_user),
-    session: SessionDep = None
-):
-    """Post a message to an event."""
-    try:
-        message = event_service.post_message(current_user.id, event_id, payload.content, session)
-        # Get username
-        from api.domains.users.model import User
-        user = session.get(User, message.user_id)
-        username = user.username if user else None
-        
-        return MessageRead(
-            id=message.id,
-            event_id=message.event_id,
-            user_id=message.user_id,
-            username=username,
-            content=message.content,
-            message_type=message.message_type,
-            created_at=message.created_at
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )

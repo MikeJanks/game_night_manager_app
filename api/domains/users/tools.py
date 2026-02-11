@@ -3,7 +3,7 @@ from langchain_core.tools import tool
 from sqlmodel import Session
 from uuid import UUID
 from . import service as user_service
-from .schemas import UserCreate, UserUpdate, FriendRequestCreate
+from .schemas import UserCreate, UserUpdate
 
 
 def create_user_tools(session: Session):
@@ -21,18 +21,18 @@ def create_user_tools(session: Session):
         return {"users": [user.model_dump() for user in users]}
     
     @tool
-    def get_user_by_id(user_id: int) -> Dict[str, Any]:
+    def get_user_by_id(user_id: str) -> Dict[str, Any]:
         """Retrieve a specific user by their unique ID.
         
         Args:
-            user_id: The unique identifier of the user (integer)
+            user_id: The UUID of the user (string)
         
         Returns a dict with a 'user' key containing the user's information 
         including id, username, email, and created_at.
         Returns {"user": None} if the user doesn't exist.
         Use this when you know the user's ID and need their details.
         """
-        user = user_service.get_user_by_id(user_id, session)
+        user = user_service.get_user_by_id(UUID(user_id), session)
         return {"user": user.model_dump() if user else None}
     
     @tool
@@ -59,14 +59,14 @@ def create_user_tools(session: Session):
         return {"user": user.model_dump()}
     
     @tool
-    def update_user(user_id: int, username: Optional[str] = None, 
+    def update_user(user_id: str, username: Optional[str] = None,
                    email: Optional[str] = None) -> Dict[str, Any]:
         """Update an existing user's information.
         
         ⚠️ WRITE OPERATION: This modifies the database. Present information and request confirmation before calling.
         
         Args:
-            user_id: The ID of the user to update
+            user_id: The UUID of the user to update (string)
             username: Optional new username (must be unique if provided)
             email: Optional new email address (must be unique if provided)
         
@@ -75,23 +75,23 @@ def create_user_tools(session: Session):
         Raises an error if the user doesn't exist or if the new username/email already exists.
         """
         user_update = UserUpdate(username=username, email=email)
-        user = user_service.update_user(user_id, user_update, session)
+        user = user_service.update_user(UUID(user_id), user_update, session)
         return {"user": user.model_dump()}
     
     @tool
-    def delete_user(user_id: int) -> Dict[str, Any]:
+    def delete_user(user_id: str) -> Dict[str, Any]:
         """Permanently delete a user from the database.
         
         ⚠️ WRITE OPERATION: This modifies the database. Present information and request confirmation before calling.
         
         Args:
-            user_id: The ID of the user to delete
+            user_id: The UUID of the user to delete (string)
         
         Returns a dict with a 'success' key set to True if the user was successfully deleted.
         Raises an error if the user doesn't exist.
         Warning: This action cannot be undone.
         """
-        result = user_service.delete_user(user_id, session)
+        result = user_service.delete_user(UUID(user_id), session)
         return {"success": result}
     
     @tool
@@ -115,93 +115,4 @@ def create_user_tools(session: Session):
         get_user_by_id,
         update_user,
         filter_users,
-    ]
-
-
-def create_friend_tools(session: Session, current_user_id: UUID):
-    """Create friend-related tools bound to a database session and user."""
-    
-    @tool
-    def send_friend_request(target_user_id: str) -> Dict[str, Any]:
-        """Send a friend request to another user.
-        
-        ⚠️ WRITE OPERATION: This modifies the database. Present information and request confirmation before calling.
-        
-        Args:
-            target_user_id: The UUID of the user to send a friend request to
-        
-        Returns a dict with success status.
-        """
-        try:
-            user_service.send_friend_request(current_user_id, UUID(target_user_id), session)
-            return {"success": True, "message": "Friend request sent"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-    
-    @tool
-    def accept_friend_request(from_user_id: str) -> Dict[str, Any]:
-        """Accept a friend request from another user.
-        
-        ⚠️ WRITE OPERATION: This modifies the database. Present information and request confirmation before calling.
-        
-        Args:
-            from_user_id: The UUID of the user who sent the friend request
-        
-        Returns a dict with success status.
-        """
-        try:
-            user_service.accept_friend_request(current_user_id, UUID(from_user_id), session)
-            return {"success": True, "message": "Friend request accepted"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-    
-    @tool
-    def list_friends() -> Dict[str, Any]:
-        """List all accepted friends.
-        
-        Returns a dict with a 'friends' key containing a list of friends.
-        """
-        try:
-            friends_data = user_service.list_friends(current_user_id, session)
-            return {"friends": friends_data}
-        except Exception as e:
-            return {"friends": [], "error": str(e)}
-    
-    @tool
-    def list_friend_requests() -> Dict[str, Any]:
-        """List incoming and outgoing pending friend requests.
-        
-        Returns a dict with 'incoming' and 'outgoing' keys, each containing a list of friend requests.
-        Incoming requests are from other users requesting the current user.
-        Outgoing requests are from the current user requesting others.
-        """
-        try:
-            requests_data = user_service.list_friend_requests(current_user_id, session)
-            return requests_data
-        except Exception as e:
-            return {"incoming": [], "outgoing": [], "error": str(e)}
-    
-    @tool
-    def decline_friend_request(from_user_id: str) -> Dict[str, Any]:
-        """Decline a friend request from another user.
-        
-        ⚠️ WRITE OPERATION: This modifies the database. Present information and request confirmation before calling.
-        
-        Args:
-            from_user_id: The UUID of the user who sent the friend request
-        
-        Returns a dict with success status.
-        """
-        try:
-            user_service.decline_friend_request(current_user_id, UUID(from_user_id), session)
-            return {"success": True, "message": "Friend request declined"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-    
-    return [
-        send_friend_request,
-        accept_friend_request,
-        decline_friend_request,
-        list_friends,
-        list_friend_requests,
     ]
