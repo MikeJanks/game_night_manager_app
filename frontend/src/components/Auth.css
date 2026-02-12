@@ -1,14 +1,5 @@
 /* Auth pages styled with the same neon theme as chat */
 
-.auth-container {
-  height: var(--app-height, 100svh);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  background: #121212;
-}
-
 .auth-card {
   background: #1a1a1a;
   border-radius: 16px;

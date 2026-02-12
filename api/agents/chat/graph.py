@@ -33,13 +33,13 @@ def create_agent_graph(llm: BaseChatModel, tools: list[BaseTool], current_user: 
     def suggestions_node(state: AgentState) -> dict:
         suggestions_prompt = SUGGESTIONS_PROMPT_TEMPLATE.format_messages()
         model_msgs = suggestions_prompt + state["messages"]
-        structured_llm = llm.with_structured_output(Suggestions, method="json_schema")
-        result = structured_llm.invoke(model_msgs)
-
-        suggestions_list = result.suggestions if result.suggestions else []
-        suggestions_list = suggestions_list[:5]
-        
-        return {"suggestions": suggestions_list}
+        try:
+            structured_llm = llm.with_structured_output(Suggestions, method="json_schema")
+            result = structured_llm.invoke(model_msgs)
+            suggestions_list = result.suggestions if result.suggestions else []
+        except Exception:
+            suggestions_list = []
+        return {"suggestions": suggestions_list[:5]}
 
     def route(state: AgentState) -> Literal["tools", "done"]:
         last = state["messages"][-1]
