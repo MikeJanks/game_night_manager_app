@@ -312,31 +312,6 @@ const Chat = () => {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
   }
-  
-  useEffect(() => {
-    const setAppHeight = () => {
-      const vv = window.visualViewport;
-      const height = vv ? vv.height : window.innerHeight;
-      document.documentElement.style.setProperty('--app-height', `${height}px`);
-    };
-  
-    setAppHeight();
-  
-    const vv = window.visualViewport;
-    if (vv) {
-      vv.addEventListener('resize', setAppHeight);
-      vv.addEventListener('scroll', setAppHeight); // helps on iOS
-    }
-    window.addEventListener('resize', setAppHeight);
-  
-    return () => {
-      if (vv) {
-        vv.removeEventListener('resize', setAppHeight);
-        vv.removeEventListener('scroll', setAppHeight);
-      }
-      window.removeEventListener('resize', setAppHeight);
-    };
-  }, []);
 
   return (
     <div className="app theme-neon">
