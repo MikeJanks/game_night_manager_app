@@ -8,9 +8,9 @@ from .suggestions import SUGGESTIONS_PROMPT
 
 SYSTEM_PROMPT_TEMPLATE = ChatPromptTemplate.from_messages([
     ("system", SYSTEM_PROMPT),
-    ("system", USER_CONTEXT_TEMPLATE)
+    ("system", USER_CONTEXT_TEMPLATE),
 ])
 
 SUGGESTIONS_PROMPT_TEMPLATE = ChatPromptTemplate.from_messages([
-    ("system", SUGGESTIONS_PROMPT)
+    ("system", SUGGESTIONS_PROMPT),
 ])

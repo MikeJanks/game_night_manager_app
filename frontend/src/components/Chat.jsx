@@ -7,7 +7,26 @@ import { authenticatedFetch } from '../utils/api'
 const API_URL = '/api/agent/chat'
 const STORAGE_KEY_PREFIX = 'agent_chat_conversation_'
 
-// localStorage helper functions
+// Normalize message to internal format (type, content, failed?, name?)
+// Handles legacy format with role -> type
+const normalizeMessage = (m) => {
+  if (Array.isArray(m)) {
+    const [role, content] = m
+    return {
+      type: role === 'user' ? 'human' : 'ai',
+      content: content || '',
+      failed: false,
+    }
+  }
+  const type = m.type ?? (m.role === 'user' ? 'human' : 'ai')
+  return {
+    type,
+    content: m.content || '',
+    failed: m.failed ?? false,
+    name: m.name,
+  }
+}
+
 const getStorageKey = (userId) => {
   if (!userId) return null
   return `${STORAGE_KEY_PREFIX}${userId}`
@@ -17,14 +36,13 @@ const saveConversation = (userId, messages, suggestions) => {
   try {
     const key = getStorageKey(userId)
     if (!key) return
-    
+
     if (messages.length > 0) {
       const data = { messages, suggestions, userId }
       localStorage.setItem(key, JSON.stringify(data))
-    } else {
-      // Remove empty conversations
-      localStorage.removeItem(key)
     }
+    // Don't remove when empty - only clearConversation/clearAllConversations do that.
+    // Removing here caused a race: save effect runs with [] before load completes, wiping persisted data.
   } catch (err) {
     console.error('Failed to save conversation to localStorage:', err)
   }
@@ -34,18 +52,17 @@ const loadConversation = (userId) => {
   try {
     const key = getStorageKey(userId)
     if (!key) return { messages: [], suggestions: [] }
-    
+
     const stored = localStorage.getItem(key)
     if (stored) {
       const data = JSON.parse(stored)
-      // Verify the conversation belongs to this user
       if (data.userId === userId) {
+        const messages = (data.messages || []).map(normalizeMessage)
         return {
-          messages: data.messages || [],
+          messages,
           suggestions: data.suggestions || [],
         }
       } else {
-        // Conversation belongs to different user, remove it
         localStorage.removeItem(key)
       }
     }
@@ -66,7 +83,6 @@ const clearConversation = (userId) => {
   }
 }
 
-// Clear all conversations (useful when logging out)
 const clearAllConversations = () => {
   try {
     const keys = Object.keys(localStorage)
@@ -90,6 +106,7 @@ const Chat = () => {
   const inputContainerRef = useRef(null)
   const greetingSentRef = useRef(false)
   const { user, logout } = useAuth()
+  const hadUserRef = useRef(false)
   const navigate = useNavigate()
 
   const scrollToBottom = () => {
@@ -98,41 +115,49 @@ const Chat = () => {
     }
   }
 
-  // Load persisted conversation when user changes
   useEffect(() => {
     if (user?.id) {
+      // Keep only 1 chat history: clear any other users' conversations when switching users
+      const currentKey = getStorageKey(user.id)
+      const keys = Object.keys(localStorage)
+      keys.forEach((key) => {
+        if (key.startsWith(STORAGE_KEY_PREFIX) && key !== currentKey) {
+          localStorage.removeItem(key)
+        }
+      })
+
       const persisted = loadConversation(user.id)
       if (persisted.messages.length > 0) {
         setMessages(persisted.messages)
         setSuggestions(persisted.suggestions)
-        greetingSentRef.current = true // Greeting already exists in conversation
+        greetingSentRef.current = true
       } else {
-        // Clear state if no conversation for this user
         setMessages([])
         setSuggestions([])
-        greetingSentRef.current = false // Reset greeting flag for new user
+        greetingSentRef.current = false
       }
     } else {
-      // No user logged in, clear everything
       setMessages([])
       setSuggestions([])
       greetingSentRef.current = false
     }
   }, [user?.id])
 
-  // Save conversation to localStorage when messages or suggestions change
   useEffect(() => {
     if (user?.id) {
       saveConversation(user.id, messages, suggestions)
     }
   }, [user?.id, messages, suggestions])
 
-  // Clear conversations when user logs out
   useEffect(() => {
-    if (!user) {
+    // Only clear when user explicitly logs out (had user, now null). Never clear on initial load/refresh.
+    if (user) {
+      hadUserRef.current = true
+    } else if (hadUserRef.current) {
       clearAllConversations()
       setMessages([])
       setSuggestions([])
+      hadUserRef.current = false
     }
   }, [user])
 
@@ -140,10 +165,8 @@ const Chat = () => {
     scrollToBottom()
   }, [messages])
 
-  // Auto-send greeting when chat is empty and user is loaded
   useEffect(() => {
     const sendGreeting = async () => {
-      // Only send if: user exists, messages empty, not loading, greeting not already sent
       if (!user?.id || messages.length > 0 || isLoading || greetingSentRef.current) {
         return
       }
@@ -153,7 +176,6 @@ const Chat = () => {
       setError('')
 
       try {
-        // Send empty messages array to trigger greeting
         const res = await authenticatedFetch(API_URL, {
           method: 'POST',
           body: JSON.stringify({ messages: [] }),
@@ -169,11 +191,9 @@ const Chat = () => {
         }
 
         const data = await res.json()
-        
-        // Handle response format with messages and suggestions
         let backendMessages = []
         let backendSuggestions = []
-        
+
         if (data.messages) {
           backendMessages = data.messages
           backendSuggestions = data.suggestions || []
@@ -182,23 +202,12 @@ const Chat = () => {
           backendSuggestions = []
         }
 
-        // Update messages and suggestions
-        setMessages(
-          backendMessages.map((m) => {
-            const [role, content] = Array.isArray(m) ? m : [m.role || 'assistant', m.content || '']
-            return {
-              role,
-              content,
-              failed: false,
-            }
-          }),
-        )
-        
+        setMessages(backendMessages.map(m => ({ ...normalizeMessage(m), failed: false })))
         setSuggestions(backendSuggestions)
       } catch (err) {
         console.error('Error sending greeting', err)
         setError(err.message || 'Failed to load greeting')
-        greetingSentRef.current = false // Reset flag on error so it can retry
+        greetingSentRef.current = false
       } finally {
         setIsLoading(false)
       }
@@ -211,18 +220,24 @@ const Chat = () => {
     const text = inputValue.trim()
     if (!text || isLoading) return
 
-    const nextMessages = [...messages, { role: 'user', content: text, failed: false }]
+    const newMsg = { type: 'human', content: text, failed: false }
+    if (user?.id) newMsg.name = user.id
+    const nextMessages = [...messages, newMsg]
     setMessages(nextMessages)
     setInputValue('')
     setIsLoading(true)
     setError('')
-    setSuggestions([]) // Clear suggestions when sending a new message
+    setSuggestions([])
 
     try {
-      // Filter out failed messages and format as tuples [role, content] for LangGraph
       const messagesForBackend = nextMessages
         .filter((m) => !m.failed)
-        .map(({ role, content }) => [role, content])
+        .map(({ type, content }) => {
+          const msg = { type, content }
+          if (type === 'human' && user?.id) msg.name = user.id
+          return msg
+        })
+
       const res = await authenticatedFetch(API_URL, {
         method: 'POST',
         body: JSON.stringify({ messages: messagesForBackend }),
@@ -238,44 +253,31 @@ const Chat = () => {
       }
 
       const data = await res.json()
-      
-      // Handle new response format with messages and suggestions
       let backendMessages = []
       let backendSuggestions = []
-      
+
       if (data.messages) {
-        // New format: { messages: [...], suggestions: [...] }
         backendMessages = data.messages
         backendSuggestions = data.suggestions || []
       } else if (Array.isArray(data)) {
-        // Legacy format: just array of messages
         backendMessages = data
         backendSuggestions = []
       }
 
-      // Replace entire message history with backend response
-      // Failed messages are naturally removed since they weren't sent to backend
       setMessages(
-        backendMessages.map((m) => {
-          const [role, content] = Array.isArray(m) ? m : [m.role || 'assistant', m.content || '']
-          return {
-            role,
-            content,
-            failed: false,
-          }
-        }),
+        backendMessages.map((m) => ({
+          ...normalizeMessage(m),
+          failed: false,
+        }))
       )
-      
-      // Update suggestions
       setSuggestions(backendSuggestions)
     } catch (err) {
       console.error('Error sending message', err)
       setError(err.message || 'Failed to send message')
-      // Mark the last user message as failed
       setMessages((prevMessages) => {
         const updated = [...prevMessages]
         const lastIndex = updated.length - 1
-        if (lastIndex >= 0 && updated[lastIndex].role === 'user') {
+        if (lastIndex >= 0 && updated[lastIndex].type === 'human') {
           updated[lastIndex] = { ...updated[lastIndex], failed: true }
         }
         return updated
@@ -294,8 +296,6 @@ const Chat = () => {
 
   const handleSuggestionClick = (suggestion) => {
     setInputValue(suggestion)
-    // Optionally auto-send: sendMessage() after setting input
-    // For now, just populate the input field
   }
 
   const handleNewChat = () => {
@@ -303,11 +303,10 @@ const Chat = () => {
     setSuggestions([])
     setInputValue('')
     setError('')
-    greetingSentRef.current = false // Reset greeting flag for new chat
+    greetingSentRef.current = false
     if (user?.id) {
       clearConversation(user.id)
     }
-    // Scroll to top
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
@@ -352,18 +351,18 @@ const Chat = () => {
           )}
 
           {messages.map((m, index) => {
-            const isLastAssistantMessage = 
-              !isLoading && 
-              m.role === 'assistant' && 
+            const isLastAssistantMessage =
+              !isLoading &&
+              m.type === 'ai' &&
               index === messages.length - 1 &&
-              suggestions.length > 0;
-            
+              suggestions.length > 0
+
             return (
               <div
                 key={index}
-                className={`message ${m.role === 'user' ? 'message-user' : 'message-assistant'}`}
+                className={`message ${m.type === 'human' ? 'message-user' : 'message-assistant'}`}
               >
-                {m.role === 'user' && m.failed && (
+                {m.type === 'human' && m.failed && (
                   <svg
                     className="message-failed-icon"
                     viewBox="0 0 24 24"
@@ -441,4 +440,3 @@ const Chat = () => {
 }
 
 export default Chat
-
