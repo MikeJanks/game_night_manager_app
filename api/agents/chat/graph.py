@@ -9,20 +9,10 @@ from langchain_core.tools import BaseTool
 from .state import AgentState
 from .prompts.templates import SYSTEM_PROMPT_TEMPLATE, SUGGESTIONS_PROMPT_TEMPLATE
 from .schema import Suggestions
-from api.domains.users.model import User
 
-def create_agent_graph(llm: BaseChatModel, tools: list[BaseTool], current_user: User) -> StateGraph:
-    # Validate required user fields exist
-    if not all([current_user.username, current_user.email, current_user.id]):
-        raise ValueError("User missing required fields for agent context")
-    
-    # Format prompt templates with user context
-    system_messages = SYSTEM_PROMPT_TEMPLATE.format_messages(**{
-        "username": current_user.username,
-        "email": current_user.email,
-        "user_id": str(current_user.id)
-    })
-    
+
+def create_agent_graph(llm: BaseChatModel, tools: list[BaseTool]) -> StateGraph:
+    system_messages = SYSTEM_PROMPT_TEMPLATE.format_messages()
     tool_node = ToolNode(tools)
 
     def agent_node(state: AgentState) -> dict:

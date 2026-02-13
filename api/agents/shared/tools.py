@@ -1,7 +1,6 @@
 """Tool aggregation and custom agent tools."""
 
 from typing import List
-from uuid import UUID
 from sqlmodel import Session
 from langchain_core.tools import BaseTool
 from api.domains.users.tools import create_user_tools
@@ -21,7 +20,7 @@ def create_custom_agent_tools() -> List[BaseTool]:
     return []
 
 
-def create_agent_tools(session: Session, current_user_id: UUID) -> List[BaseTool]:
+def create_agent_tools(session: Session) -> List[BaseTool]:
     """Aggregate all tools for the agent.
     
     This function combines:
@@ -30,19 +29,11 @@ def create_agent_tools(session: Session, current_user_id: UUID) -> List[BaseTool
     
     Args:
         session: SQLModel database session for domain tools.
-        current_user_id: UUID of the current authenticated user.
     
     Returns:
         Complete list of all available tools for the agent.
     """
-    # Get domain tools (bound to session)
     user_tools = create_user_tools(session)
-    event_tools = create_event_tools(session, current_user_id)
-    
-    # Get custom agent tools
+    event_tools = create_event_tools(session)
     custom_tools = create_custom_agent_tools()
-    
-    # Combine all tools
-    all_tools = user_tools + event_tools + custom_tools
-    
-    return all_tools
+    return user_tools + event_tools + custom_tools
