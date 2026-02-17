@@ -94,9 +94,10 @@ GROQ_API_KEY=...
 ```
 DISCORD_BOT_TOKEN=...
 API_BASE_URL=https://your-api.vercel.app
-DISCORD_CHANNEL_IDS=123,456,789
-MESSAGE_HISTORY_LIMIT=25
+DISCORD_API_KEY=...              # For X-API-Key on /api/agents/channel
 ```
+
+The bot responds in any channel it can read. No channel IDs to configure—each message includes its channel context.
 
 ### Run Locally
 

@@ -13,6 +13,7 @@ class Event(SQLModel, table=True):
     event_datetime: Optional[datetime] = None
     location_or_link: Optional[str] = None
     status: EventStatus = Field(nullable=False)
+    channel_id: Optional[str] = None  # None = personal/web; set when created from integration (e.g. Discord)
 
 
 class EventMembership(SQLModel, table=True):

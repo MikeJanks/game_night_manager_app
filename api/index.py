@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 
 # Import routers
 from api.domains.events.routes import router as events_router
-from api.agents.chat.routes import router as agent_router
+from api.agents.routes import router as agents_router
 from api.domains.auth.dependencies import fastapi_users, jwt_authentication
 from api.domains.users.schemas import UserPublic, UserCreate, UserUpdate
 
@@ -40,7 +40,7 @@ api.include_router(fastapi_users.get_register_router(UserPublic, UserCreate), pr
 api.include_router(fastapi_users.get_auth_router(jwt_authentication), prefix="/auth", tags=["auth"])
 api.include_router(fastapi_users.get_users_router(UserPublic, UserUpdate), prefix="/auth", tags=["auth"])
 api.include_router(events_router)
-api.include_router(agent_router)
+api.include_router(agents_router)
 
 app.include_router(api)
 

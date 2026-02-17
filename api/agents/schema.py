@@ -31,6 +31,11 @@ class AgentRequest(BaseModel):
         ...,
         description="Complete conversation history. Human: {type: 'human', content: '...', name?: user_id}. AI: {type: 'ai', content: '...'}",
     )
+    channel_id: Optional[str] = Field(None, description="Channel id (e.g. Discord channel); required for channel route.")
+    channel_member_ids: Optional[list[str]] = Field(
+        None,
+        description="Discord user IDs in the channel; required for channel route. Used for invite validation only.",
+    )
 
 
 class MessageResponse(BaseModel):

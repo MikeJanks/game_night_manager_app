@@ -1,16 +1,17 @@
+from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Depends
 from langchain_core.messages import BaseMessage, AIMessage, HumanMessage
+from sqlmodel import Session
 from api.database import SessionDep
-from api.domains.auth.dependencies import current_active_user
+from api.domains.auth.dependencies import current_active_user, verify_integration_api_key
 from api.domains.users.model import User
 
 from .schema import AgentRequest, AgentResponse, MessageResponse
-from api.agents.shared.model import get_default_llm
-from api.agents.shared.tools import create_agent_tools
-from .graph import create_agent_graph
+from .llm import get_default_llm
+from .graph import create_user_agent_graph, create_channel_agent_graph
 from .state import AgentState
 
-router = APIRouter(prefix="/agent", tags=["agent"])
+router = APIRouter(prefix="/agents", tags=["agents"])
 
 
 def to_message_response(msg: BaseMessage) -> MessageResponse:
@@ -33,21 +34,20 @@ def convert_final_message(chat_message: BaseMessage) -> MessageResponse:
     return MessageResponse(type="ai", content=content)
 
 
-@router.post("/chat", response_model=AgentResponse)
-def chat_with_agent(
+@router.post("/user", response_model=AgentResponse)
+def chat_user(
     request: AgentRequest,
     session: SessionDep,
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
+    """User agent - authenticated user session."""
     try:
         llm = get_default_llm()
-        tools = create_agent_tools(session)
-        graph = create_agent_graph(llm, tools)
+        graph = create_user_agent_graph(llm, session)
 
         initial_state: AgentState = {"messages": request.messages, "suggestions": None}
         final_state: AgentState = graph.invoke(initial_state, {"recursion_limit": 100})
 
-        # request + final only; final_state has ToolMessages so we hide from UI
         final_msg = convert_final_message(final_state["messages"][-1])
         request_messages_responses = [to_message_response(m) for m in request.messages]
         all_messages = request_messages_responses + [final_msg]
@@ -55,7 +55,42 @@ def chat_with_agent(
         suggestions = final_state.get("suggestions")
 
         return AgentResponse(messages=all_messages, suggestions=suggestions)
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Agent error: {str(e)}")
 
+
+@router.post("/channel", response_model=AgentResponse)
+def chat_channel(
+    request: AgentRequest,
+    session: SessionDep,
+    platform: str = Depends(verify_integration_api_key),
+):
+    """Channel agent - external integrations (e.g. Discord bot) via API key. Requires channel_id and channel_member_ids."""
+    if not request.channel_id or request.channel_member_ids is None:
+        raise HTTPException(
+            status_code=400,
+            detail="channel_id and channel_member_ids are required for the channel endpoint",
+        )
+    try:
+        llm = get_default_llm()
+        graph = create_channel_agent_graph(
+            llm, session, request.channel_id, request.channel_member_ids
+        )
+
+        initial_state: AgentState = {"messages": request.messages, "suggestions": None}
+        final_state: AgentState = graph.invoke(initial_state, {"recursion_limit": 100})
+
+        final_msg = convert_final_message(final_state["messages"][-1])
+        request_messages_responses = [to_message_response(m) for m in request.messages]
+        all_messages = request_messages_responses + [final_msg]
+
+        suggestions = final_state.get("suggestions")
+
+        return AgentResponse(messages=all_messages, suggestions=suggestions)
     except HTTPException:
         raise
     except ValueError as e:

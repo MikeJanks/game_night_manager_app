@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { authenticatedFetch } from '../utils/api'
 
-const API_URL = '/api/agent/chat'
-const STORAGE_KEY_PREFIX = 'agent_chat_conversation_'
+const API_URL = '/api/agents/user'
+const STORAGE_KEY_PREFIX = 'bot_session_conversation_'
 
 // Normalize message to internal format (type, content, failed?, name?)
 // Handles legacy format with role -> type

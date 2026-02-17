@@ -1,7 +1,7 @@
 import os
 from typing import Annotated, Optional
 from uuid import UUID
-from fastapi import Depends, Request
+from fastapi import Depends, Header, HTTPException, Request, status
 from fastapi_users import BaseUserManager
 from fastapi_users_db_sqlmodel import SQLModelUserDatabase
 from fastapi_users import FastAPIUsers
@@ -92,3 +92,17 @@ fastapi_users = FastAPIUsers[User, UUID](
 
 # Export current_active_user dependency
 current_active_user = fastapi_users.current_user(active=True)
+
+
+PLATFORM_KEYS = {
+    "discord": os.getenv("DISCORD_API_KEY"),
+    # "slack": os.getenv("SLACK_API_KEY"),  # Add when Slack is added
+}
+
+
+def verify_integration_api_key(x_api_key: str = Header(..., alias="X-API-Key")) -> str:
+    """Verify API key for integration routes. Returns platform name if valid."""
+    for platform, expected in PLATFORM_KEYS.items():
+        if expected and x_api_key == expected:
+            return platform
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key")
