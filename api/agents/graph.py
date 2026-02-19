@@ -65,7 +65,10 @@ def _build_agent_graph(
     return graph.compile()
 
 
-def create_user_agent_graph(llm: BaseChatModel, session: Session) -> StateGraph:
+def create_user_agent_graph(
+    llm: BaseChatModel,
+    session: Session,
+) -> StateGraph:
     """Create agent graph for user (session) path. Uses user-scoped event tools."""
     tools = create_user_agent_tools(session)
     system_prompt = SYSTEM_PROMPT_TEMPLATE.format_messages()
@@ -78,9 +81,10 @@ def create_channel_agent_graph(
     session: Session,
     channel_id: str,
     channel_member_ids: list[str],
+    platform: str,
 ) -> StateGraph:
     """Create agent graph for channel (integration) path. Uses channel-scoped event tools."""
-    tools = create_channel_agent_tools(session, channel_id, channel_member_ids)
-    system_prompt = SYSTEM_PROMPT_TEMPLATE.format_messages()  # Will use integration context later
+    tools = create_channel_agent_tools(session, channel_id, channel_member_ids, platform)
+    system_prompt = SYSTEM_PROMPT_TEMPLATE.format_messages()
     suggestions_prompt = SUGGESTIONS_PROMPT_TEMPLATE.format_messages()
     return _build_agent_graph(llm, tools, system_prompt, suggestions_prompt)

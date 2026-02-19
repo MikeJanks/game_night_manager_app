@@ -78,7 +78,7 @@ def chat_channel(
     try:
         llm = get_default_llm()
         graph = create_channel_agent_graph(
-            llm, session, request.channel_id, request.channel_member_ids
+            llm, session, request.channel_id, request.channel_member_ids, platform,
         )
 
         initial_state: AgentState = {"messages": request.messages, "suggestions": None}

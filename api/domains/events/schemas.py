@@ -36,9 +36,9 @@ class EventCounts(BaseModel):
 
 class EventMember(BaseModel):
     """Response schema for event member (app user or external)."""
-    user_id: Optional[UUID] = None
-    username: Optional[str] = None
-    display_name: Optional[str] = None
+    member_id: str
+    source: str
+    name: Optional[str] = None
     status: MembershipStatus
 
     class Config:

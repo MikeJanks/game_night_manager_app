@@ -101,8 +101,8 @@ PLATFORM_KEYS = {
 
 
 def verify_integration_api_key(x_api_key: str = Header(..., alias="X-API-Key")) -> str:
-    """Verify API key for integration routes. Returns platform name if valid."""
+    """Verify API key for integration routes. Returns platform name (uppercase) if valid."""
     for platform, expected in PLATFORM_KEYS.items():
         if expected and x_api_key == expected:
-            return platform
+            return "DISCORD" if platform == "discord" else platform.upper()
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid API key")

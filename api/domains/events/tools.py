@@ -6,28 +6,23 @@ from uuid import UUID
 from . import service as event_service
 from .service import ResolvedActor
 from .schemas import EventCreate, EventPlanUpdate
-from api.domains.common.enums import EventStatus, MembershipRole, ExternalSource
+from api.domains.common.enums import EventStatus, MembershipRole, MemberSource
 
 
-def _resolve_actor(identifier: str, is_channel_path: bool) -> ResolvedActor:
-    """Resolve message 'name' to ResolvedActor. User path: UUID only. Channel path: UUID or Discord id."""
+def _resolve_actor(identifier: str, source: MemberSource) -> ResolvedActor:
+    """Resolve identifier to ResolvedActor. Source from auth (user path = APP_USER, channel path = platform)."""
     if not identifier:
         raise ValueError("user_id is required")
-    # Try UUID first (app user)
-    try:
-        return ResolvedActor(user_id=UUID(identifier), external_source=None, external_id=None)
-    except (ValueError, TypeError):
-        pass
-    if not is_channel_path:
-        raise ValueError("user_id must be a valid UUID for this context")
-    # Channel path: Discord id as discord:snowflake or bare snowflake
-    if identifier.startswith("discord:"):
-        snowflake = identifier[8:].strip()
-        if snowflake.isdigit():
-            return ResolvedActor(user_id=None, external_source=ExternalSource.DISCORD, external_id=snowflake)
-    if identifier.isdigit():
-        return ResolvedActor(user_id=None, external_source=ExternalSource.DISCORD, external_id=identifier)
-    raise ValueError("user_id must be a valid UUID or Discord id (e.g. discord:123 or 123)")
+    if source == MemberSource.APP_USER:
+        try:
+            UUID(identifier)
+        except (ValueError, TypeError):
+            raise ValueError("user_id must be a valid UUID")
+        return ResolvedActor(member_id=identifier, source=MemberSource.APP_USER)
+    if source == MemberSource.DISCORD:
+        external_id = identifier[8:].strip() if identifier.startswith("discord:") else identifier
+        return ResolvedActor(member_id=external_id, source=MemberSource.DISCORD)
+    raise ValueError(f"Unknown actor source: {source}")
 
 
 def create_user_event_tools(session: Session) -> List:
@@ -321,11 +316,13 @@ def create_channel_event_tools(
     session: Session,
     channel_id: str,
     channel_member_ids: List[str],
+    platform: str,
 ) -> List:
     """Create event tools for the channel (integration) path. Tools are scoped to channel_id; invitee must be in channel_member_ids."""
     
     bound_channel_id = channel_id
     bound_member_ids = list(channel_member_ids) if channel_member_ids else []
+    actor_source = MemberSource(platform)
     
     @tool
     def create_event(user_id: str, game_name: str, event_name: str) -> Dict[str, Any]:
@@ -340,7 +337,7 @@ def create_channel_event_tools(
         
         Returns a dict with an 'event' key containing the created event.
         """
-        actor = _resolve_actor(user_id, is_channel_path=True)
+        actor = _resolve_actor(user_id, actor_source)
         payload = EventCreate(game_name=game_name, event_name=event_name)
         event = event_service.create_event_in_channel(actor, payload, bound_channel_id, session)
         event_data = event_service.get_event_in_channel(event.id, bound_channel_id, session)
@@ -445,7 +442,7 @@ def create_channel_event_tools(
         
         Returns a dict with an 'event' key containing the updated event.
         """
-        actor = _resolve_actor(user_id, is_channel_path=True)
+        actor = _resolve_actor(user_id, actor_source)
         payload = EventPlanUpdate(**(event_plan_update or {}))
         event = event_service.update_event_plan_in_channel(
             actor, UUID(event_id), bound_channel_id, payload, session
@@ -457,7 +454,7 @@ def create_channel_event_tools(
     def confirm_event(user_id: str, event_id: str) -> Dict[str, Any]:
         """Confirm an event (host only, event must be in this channel)."""
         try:
-            actor = _resolve_actor(user_id, is_channel_path=True)
+            actor = _resolve_actor(user_id, actor_source)
             event_service.set_event_status_in_channel(
                 actor, UUID(event_id), bound_channel_id, EventStatus.CONFIRMED, session
             )
@@ -469,7 +466,7 @@ def create_channel_event_tools(
     def cancel_event(user_id: str, event_id: str) -> Dict[str, Any]:
         """Cancel an event (host only, event must be in this channel)."""
         try:
-            actor = _resolve_actor(user_id, is_channel_path=True)
+            actor = _resolve_actor(user_id, actor_source)
             event_service.set_event_status_in_channel(
                 actor, UUID(event_id), bound_channel_id, EventStatus.CANCELLED, session
             )
@@ -481,7 +478,7 @@ def create_channel_event_tools(
     def delete_event(user_id: str, event_id: str) -> Dict[str, Any]:
         """Delete an event (host only, event must be in this channel)."""
         try:
-            actor = _resolve_actor(user_id, is_channel_path=True)
+            actor = _resolve_actor(user_id, actor_source)
             event_service.delete_event_in_channel(actor, UUID(event_id), bound_channel_id, session)
             return {"success": True, "message": "Event deleted"}
         except Exception as e:
@@ -502,7 +499,7 @@ def create_channel_event_tools(
         Returns a dict with success status.
         """
         try:
-            actor = _resolve_actor(user_id, is_channel_path=True)
+            actor = _resolve_actor(user_id, actor_source)
             role_enum = MembershipRole[role.upper()]
             event_service.invite_user_in_channel(
                 actor, UUID(event_id), bound_channel_id, invitee_user_id, role_enum, bound_member_ids, session
@@ -515,7 +512,7 @@ def create_channel_event_tools(
     def accept_invite(user_id: str, event_id: str) -> Dict[str, Any]:
         """Accept an event invite (event must be in this channel)."""
         try:
-            actor = _resolve_actor(user_id, is_channel_path=True)
+            actor = _resolve_actor(user_id, actor_source)
             event_service.accept_invite_in_channel(actor, UUID(event_id), bound_channel_id, session)
             return {"success": True, "message": "Invite accepted"}
         except Exception as e:
@@ -525,7 +522,7 @@ def create_channel_event_tools(
     def decline_invite(user_id: str, event_id: str) -> Dict[str, Any]:
         """Decline an event invite (event must be in this channel)."""
         try:
-            actor = _resolve_actor(user_id, is_channel_path=True)
+            actor = _resolve_actor(user_id, actor_source)
             event_service.decline_invite_in_channel(actor, UUID(event_id), bound_channel_id, session)
             return {"success": True, "message": "Invite declined"}
         except Exception as e:
@@ -535,7 +532,7 @@ def create_channel_event_tools(
     def leave_event(user_id: str, event_id: str) -> Dict[str, Any]:
         """Leave an event (event must be in this channel)."""
         try:
-            actor = _resolve_actor(user_id, is_channel_path=True)
+            actor = _resolve_actor(user_id, actor_source)
             event_service.leave_event_in_channel(actor, UUID(event_id), bound_channel_id, session)
             return {"success": True, "message": "Left event"}
         except Exception as e:
