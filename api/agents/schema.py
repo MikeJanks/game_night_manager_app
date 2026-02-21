@@ -5,22 +5,43 @@ from pydantic import BaseModel, Field, Discriminator, model_validator
 from langchain_core.messages import HumanMessage, AIMessage
 
 
-class NamedHumanMessage(HumanMessage):
-    """HumanMessage that syncs name into additional_kwargs for Groq API compatibility.
+class MessageWithMetadataMixin:
+    """Mixin for timestamp injection into message content for LLM context.
 
-    langchain_groq only includes the name field when it's in additional_kwargs,
-    so we ensure it's set here for messages with a name.
+    Uses response_metadata['timestamp']. Prepends [timestamp:...] to content.
+    Use export_for_response() for API responses (excludes prefix).
     """
 
+    timestamp: str
+
     @model_validator(mode="after")
-    def _sync_name_to_additional_kwargs(self) -> "NamedHumanMessage":
-        if self.name:
-            self.additional_kwargs = {**self.additional_kwargs, "name": self.name}
+    def _inject_timestamp(self):
+        self.response_metadata = {**self.response_metadata, "timestamp": self.timestamp}
+        self.additional_kwargs = self.additional_kwargs or {}
+        if "_original_content" not in self.additional_kwargs:
+            self.additional_kwargs["_original_content"] = self.content
+            self.content = f"[timestamp:{self.timestamp}] {self.content}"
+        if getattr(self, "name", None):
+            self.additional_kwargs["name"] = self.name
         return self
+
+    def export_for_response(self) -> str:
+        """Content for API response - excludes timestamp prefix."""
+        return self.additional_kwargs.get("_original_content", self.content)
+
+
+class NamedHumanMessage(MessageWithMetadataMixin, HumanMessage):
+    """HumanMessage with timestamp injection for LLM context."""
+    pass
+
+
+class NamedAIMessage(MessageWithMetadataMixin, AIMessage):
+    """AIMessage with timestamp injection for LLM context."""
+    pass
 
 
 MessageUnion = Annotated[
-    Union[NamedHumanMessage, AIMessage],
+    Union[NamedHumanMessage, NamedAIMessage],
     Discriminator("type"),
 ]
 
@@ -43,6 +64,7 @@ class MessageResponse(BaseModel):
     type: str = Field(..., description="Message type: 'human' or 'ai'")
     content: str = Field(..., description="Message content")
     name: Optional[str] = Field(None, description="User ID for human messages (from message name field)")
+    timestamp: Optional[str] = Field(None, description="ISO timestamp when message was sent/received")
 
 
 class AgentResponse(BaseModel):

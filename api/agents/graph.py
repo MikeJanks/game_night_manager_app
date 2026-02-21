@@ -1,5 +1,6 @@
 """LangGraph state graph definition for the chat agent."""
 
+from datetime import datetime
 from typing import Literal
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
@@ -9,6 +10,7 @@ from langchain_core.messages import BaseMessage
 
 from .state import AgentState
 from .prompts.templates import SYSTEM_PROMPT_TEMPLATE, SUGGESTIONS_PROMPT_TEMPLATE
+from .prompts.user_context import ADDRESS_USER_BY_USERNAME, ADDRESS_DISCORD_BY_MENTION
 from .schema import Suggestions
 from .tools import create_user_agent_tools, create_channel_agent_tools
 from sqlmodel import Session
@@ -65,10 +67,18 @@ def _build_agent_graph(
     return graph.compile()
 
 
-def create_user_agent_graph(llm: BaseChatModel, session: Session) -> StateGraph:
+def create_user_agent_graph(
+    llm: BaseChatModel,
+    session: Session,
+    username: str,
+) -> StateGraph:
     """Create agent graph for user (session) path. Uses user-scoped event tools."""
     tools = create_user_agent_tools(session)
-    system_prompt = SYSTEM_PROMPT_TEMPLATE.format_messages()
+    user_addressing_instruction = ADDRESS_USER_BY_USERNAME.format(username=username)
+    system_prompt = SYSTEM_PROMPT_TEMPLATE.format_messages(
+        current_time=datetime.utcnow().isoformat() + "Z",
+        user_addressing_instruction=user_addressing_instruction,
+    )
     suggestions_prompt = SUGGESTIONS_PROMPT_TEMPLATE.format_messages()
     return _build_agent_graph(llm, tools, system_prompt, suggestions_prompt)
 
@@ -78,9 +88,17 @@ def create_channel_agent_graph(
     session: Session,
     channel_id: str,
     channel_member_ids: list[str],
+    platform: str,
 ) -> StateGraph:
     """Create agent graph for channel (integration) path. Uses channel-scoped event tools."""
-    tools = create_channel_agent_tools(session, channel_id, channel_member_ids)
-    system_prompt = SYSTEM_PROMPT_TEMPLATE.format_messages()  # Will use integration context later
+    tools = create_channel_agent_tools(session, channel_id, channel_member_ids, platform)
+    user_addressing_instruction = (
+        ADDRESS_DISCORD_BY_MENTION if platform == "DISCORD"
+        else "Address users naturally when appropriate."
+    )
+    system_prompt = SYSTEM_PROMPT_TEMPLATE.format_messages(
+        current_time=datetime.utcnow().isoformat() + "Z",
+        user_addressing_instruction=user_addressing_instruction,
+    )
     suggestions_prompt = SUGGESTIONS_PROMPT_TEMPLATE.format_messages()
     return _build_agent_graph(llm, tools, system_prompt, suggestions_prompt)

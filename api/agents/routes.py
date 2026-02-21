@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Depends
 from langchain_core.messages import BaseMessage, AIMessage, HumanMessage
@@ -15,11 +16,21 @@ router = APIRouter(prefix="/agents", tags=["agents"])
 
 
 def to_message_response(msg: BaseMessage) -> MessageResponse:
-    """Convert LangChain message to MessageResponse. Human/AI only; skips ToolMessage."""
-    content = (msg.content or "").strip()
+    """Convert LangChain message to MessageResponse. Expects HumanMessage or AIMessage only."""
     if isinstance(msg, HumanMessage):
-        return MessageResponse(type="human", content=content, name=getattr(msg, "name", None))
-    return MessageResponse(type="ai", content=content)
+        return MessageResponse(
+            type="human",
+            content=msg.export_for_response(),
+            name=msg.name,
+            timestamp=msg.response_metadata.get("timestamp"),
+        )
+    if isinstance(msg, AIMessage):
+        return MessageResponse(
+            type="ai",
+            content=msg.export_for_response(),
+            timestamp=msg.response_metadata.get("timestamp"),
+        )
+    raise TypeError(f"Expected HumanMessage or AIMessage, got {type(msg).__name__}")
 
 
 def convert_final_message(chat_message: BaseMessage) -> MessageResponse:
@@ -31,7 +42,8 @@ def convert_final_message(chat_message: BaseMessage) -> MessageResponse:
     if not content:
         raise HTTPException(status_code=502, detail="Model produced no final response.")
 
-    return MessageResponse(type="ai", content=content)
+    timestamp = datetime.utcnow().isoformat() + "Z"
+    return MessageResponse(type="ai", content=content, timestamp=timestamp)
 
 
 @router.post("/user", response_model=AgentResponse)
@@ -43,7 +55,7 @@ def chat_user(
     """User agent - authenticated user session."""
     try:
         llm = get_default_llm()
-        graph = create_user_agent_graph(llm, session)
+        graph = create_user_agent_graph(llm, session, current_user.username)
 
         initial_state: AgentState = {"messages": request.messages, "suggestions": None}
         final_state: AgentState = graph.invoke(initial_state, {"recursion_limit": 100})
@@ -78,7 +90,7 @@ def chat_channel(
     try:
         llm = get_default_llm()
         graph = create_channel_agent_graph(
-            llm, session, request.channel_id, request.channel_member_ids
+            llm, session, request.channel_id, request.channel_member_ids, platform,
         )
 
         initial_state: AgentState = {"messages": request.messages, "suggestions": None}

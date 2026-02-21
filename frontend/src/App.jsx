@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Login from './components/Login'
 import Signup from './components/Signup'
 import Chat from './components/Chat'
+import LandingPage from './pages/landing/LandingPage'
 
 const App = () => {
   return (
@@ -12,7 +13,7 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/" element={<Navigate to="/chat" replace />} />
+          <Route path="/" element={<LandingPage />} />
           <Route
             path="/chat"
             element={
@@ -21,7 +22,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="*" element={<Navigate to="/chat" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

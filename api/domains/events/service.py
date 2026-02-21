@@ -8,15 +8,14 @@ from datetime import datetime, timezone
 from .model import Event, EventMembership
 from .schemas import EventCreate, EventPlanUpdate, EventMembershipRead
 from api.domains.users.model import User
-from api.domains.common.enums import EventStatus, MembershipRole, MembershipStatus, ExternalSource
+from api.domains.common.enums import EventStatus, MembershipRole, MembershipStatus, MemberSource
 
 
 @dataclass
 class ResolvedActor:
-    """Actor for channel path: either app user (user_id) or external member (external_source, external_id)."""
-    user_id: Optional[UUID] = None
-    external_source: Optional[ExternalSource] = None
-    external_id: Optional[str] = None
+    """Actor identified by member_id and source (app user or external platform)."""
+    member_id: str
+    source: MemberSource
 
 
 # --- Shared core ---
@@ -60,23 +59,14 @@ def _find_membership_by_actor(
     event_id: UUID,
     actor: ResolvedActor,
 ) -> Optional[EventMembership]:
-    """Find membership for this event matching the actor (user_id or external)."""
-    if actor.user_id is not None:
-        return session.exec(
-            select(EventMembership).where(
-                EventMembership.event_id == event_id,
-                EventMembership.user_id == actor.user_id,
-            )
-        ).first()
-    if actor.external_source is not None and actor.external_id is not None:
-        return session.exec(
-            select(EventMembership).where(
-                EventMembership.event_id == event_id,
-                EventMembership.external_source == actor.external_source,
-                EventMembership.external_id == actor.external_id,
-            )
-        ).first()
-    return None
+    """Find membership for this event matching the actor (member_id + source)."""
+    return session.exec(
+        select(EventMembership).where(
+            EventMembership.event_id == event_id,
+            EventMembership.member_id == actor.member_id,
+            EventMembership.source == actor.source,
+        )
+    ).first()
 
 
 # --- Event service functions (legacy / used by user-scoped) ---
@@ -95,7 +85,8 @@ def create_event(current_user_id: UUID, payload: EventCreate, session: Session) 
 
     membership = EventMembership(
         event_id=event.id,
-        user_id=current_user_id,
+        member_id=str(current_user_id),
+        source=MemberSource.APP_USER,
         role=MembershipRole.HOST,
         status=MembershipStatus.ACCEPTED
     )
@@ -106,20 +97,16 @@ def create_event(current_user_id: UUID, payload: EventCreate, session: Session) 
 
 
 def _member_display(membership: EventMembership, users: dict) -> dict:
-    """Build member dict for response; handle nullable user_id (external members)."""
-    if membership.user_id is not None:
-        user = users.get(membership.user_id)
-        username = user.username if user else None
-        return {
-            "user_id": membership.user_id,
-            "username": username or "",
-            "display_name": membership.display_name,
-            "status": membership.status
-        }
+    """Build member dict for response. name from User lookup when app_user; None for Discord."""
+    if membership.source == MemberSource.APP_USER:
+        user = users.get(UUID(membership.member_id))
+        name = user.username if user else None
+    else:
+        name = None
     return {
-        "user_id": None,
-        "username": None,
-        "display_name": membership.display_name or "External",
+        "member_id": membership.member_id,
+        "source": membership.source.value,
+        "name": name,
         "status": membership.status
     }
 
@@ -136,7 +123,8 @@ def get_event_scoped(current_user_id: UUID, event_id: UUID, session: Session) ->
     user_membership = session.exec(
         select(EventMembership).where(
             EventMembership.event_id == event_id,
-            EventMembership.user_id == current_user_id
+            EventMembership.member_id == str(current_user_id),
+            EventMembership.source == MemberSource.APP_USER,
         )
     ).first()
 
@@ -153,7 +141,7 @@ def get_event_scoped(current_user_id: UUID, event_id: UUID, session: Session) ->
     all_memberships = session.exec(
         select(EventMembership).where(EventMembership.event_id == event_id)
     ).all()
-    user_ids = [m.user_id for m in all_memberships if m.user_id is not None]
+    user_ids = [UUID(m.member_id) for m in all_memberships if m.source == MemberSource.APP_USER]
     users = {}
     if user_ids:
         users_list = session.exec(select(User).where(User.id.in_(user_ids))).all()
@@ -176,7 +164,8 @@ def list_events_scoped(
 
     user_event_ids = session.exec(
         select(EventMembership.event_id).where(
-            EventMembership.user_id == current_user_id,
+            EventMembership.member_id == str(current_user_id),
+            EventMembership.source == MemberSource.APP_USER,
             EventMembership.status.in_([MembershipStatus.PENDING, MembershipStatus.ACCEPTED])
         )
     ).all()
@@ -198,13 +187,14 @@ def list_events_scoped(
         user_membership = session.exec(
             select(EventMembership).where(
                 EventMembership.event_id == event.id,
-                EventMembership.user_id == current_user_id
+                EventMembership.member_id == str(current_user_id),
+                EventMembership.source == MemberSource.APP_USER,
             )
         ).first()
         all_memberships = session.exec(
             select(EventMembership).where(EventMembership.event_id == event.id)
         ).all()
-        user_ids = [m.user_id for m in all_memberships if m.user_id is not None]
+        user_ids = [UUID(m.member_id) for m in all_memberships if m.source == MemberSource.APP_USER]
         users = {}
         if user_ids:
             users_list = session.exec(select(User).where(User.id.in_(user_ids))).all()
@@ -230,7 +220,8 @@ def update_event_plan(
     membership = session.exec(
         select(EventMembership).where(
             EventMembership.event_id == event_id,
-            EventMembership.user_id == current_user_id,
+            EventMembership.member_id == str(current_user_id),
+            EventMembership.source == MemberSource.APP_USER,
             EventMembership.role == MembershipRole.HOST,
             EventMembership.status == MembershipStatus.ACCEPTED
         )
@@ -279,7 +270,8 @@ def set_event_status(
     membership = session.exec(
         select(EventMembership).where(
             EventMembership.event_id == event_id,
-            EventMembership.user_id == current_user_id,
+            EventMembership.member_id == str(current_user_id),
+            EventMembership.source == MemberSource.APP_USER,
             EventMembership.role == MembershipRole.HOST,
             EventMembership.status == MembershipStatus.ACCEPTED
         )
@@ -310,7 +302,8 @@ def delete_event(current_user_id: UUID, event_id: UUID, session: Session) -> Non
     membership = session.exec(
         select(EventMembership).where(
             EventMembership.event_id == event_id,
-            EventMembership.user_id == current_user_id,
+            EventMembership.member_id == str(current_user_id),
+            EventMembership.source == MemberSource.APP_USER,
             EventMembership.role == MembershipRole.HOST,
             EventMembership.status == MembershipStatus.ACCEPTED
         )
@@ -352,7 +345,8 @@ def invite_user(
     inviter_membership = session.exec(
         select(EventMembership).where(
             EventMembership.event_id == event_id,
-            EventMembership.user_id == current_user_id,
+            EventMembership.member_id == str(current_user_id),
+            EventMembership.source == MemberSource.APP_USER,
             EventMembership.status == MembershipStatus.ACCEPTED
         )
     ).first()
@@ -372,7 +366,8 @@ def invite_user(
     existing = session.exec(
         select(EventMembership).where(
             EventMembership.event_id == event_id,
-            EventMembership.user_id == invitee_user_id
+            EventMembership.member_id == str(invitee_user_id),
+            EventMembership.source == MemberSource.APP_USER,
         )
     ).first()
 
@@ -387,7 +382,8 @@ def invite_user(
 
     membership = EventMembership(
         event_id=event_id,
-        user_id=invitee_user_id,
+        member_id=str(invitee_user_id),
+        source=MemberSource.APP_USER,
         role=role,
         status=MembershipStatus.PENDING
     )
@@ -415,7 +411,8 @@ def accept_invite(current_user_id: UUID, event_id: UUID, session: Session) -> Ev
     membership = session.exec(
         select(EventMembership).where(
             EventMembership.event_id == event_id,
-            EventMembership.user_id == current_user_id,
+            EventMembership.member_id == str(current_user_id),
+            EventMembership.source == MemberSource.APP_USER,
             EventMembership.status == MembershipStatus.PENDING
         )
     ).first()
@@ -438,7 +435,8 @@ def decline_invite(current_user_id: UUID, event_id: UUID, session: Session) -> N
     membership = session.exec(
         select(EventMembership).where(
             EventMembership.event_id == event_id,
-            EventMembership.user_id == current_user_id,
+            EventMembership.member_id == str(current_user_id),
+            EventMembership.source == MemberSource.APP_USER,
             EventMembership.status == MembershipStatus.PENDING
         )
     ).first()
@@ -458,7 +456,8 @@ def leave_event(current_user_id: UUID, event_id: UUID, session: Session) -> None
     membership = session.exec(
         select(EventMembership).where(
             EventMembership.event_id == event_id,
-            EventMembership.user_id == current_user_id
+            EventMembership.member_id == str(current_user_id),
+            EventMembership.source == MemberSource.APP_USER,
         )
     ).first()
 
@@ -595,7 +594,7 @@ def list_events_for_channel(
         all_memberships = session.exec(
             select(EventMembership).where(EventMembership.event_id == event.id)
         ).all()
-        user_ids = [m.user_id for m in all_memberships if m.user_id is not None]
+        user_ids = [UUID(m.member_id) for m in all_memberships if m.source == MemberSource.APP_USER]
         users = {}
         if user_ids:
             users_list = session.exec(select(User).where(User.id.in_(user_ids))).all()
@@ -615,7 +614,7 @@ def get_event_in_channel(event_id: UUID, channel_id: str, session: Session) -> d
     all_memberships = session.exec(
         select(EventMembership).where(EventMembership.event_id == event_id)
     ).all()
-    user_ids = [m.user_id for m in all_memberships if m.user_id is not None]
+    user_ids = [UUID(m.member_id) for m in all_memberships if m.source == MemberSource.APP_USER]
     users = {}
     if user_ids:
         users_list = session.exec(select(User).where(User.id.in_(user_ids))).all()
@@ -639,22 +638,13 @@ def create_event_in_channel(
     session.add(event)
     session.commit()
     session.refresh(event)
-    if actor.user_id is not None:
-        membership = EventMembership(
-            event_id=event.id,
-            user_id=actor.user_id,
-            role=MembershipRole.HOST,
-            status=MembershipStatus.ACCEPTED,
-        )
-    else:
-        membership = EventMembership(
-            event_id=event.id,
-            user_id=None,
-            external_source=actor.external_source,
-            external_id=actor.external_id,
-            role=MembershipRole.HOST,
-            status=MembershipStatus.ACCEPTED,
-        )
+    membership = EventMembership(
+        event_id=event.id,
+        member_id=actor.member_id,
+        source=actor.source,
+        role=MembershipRole.HOST,
+        status=MembershipStatus.ACCEPTED,
+    )
     session.add(membership)
     session.commit()
     return event
@@ -756,8 +746,8 @@ def invite_user_in_channel(
     existing = session.exec(
         select(EventMembership).where(
             EventMembership.event_id == event_id,
-            EventMembership.external_source == ExternalSource.DISCORD,
-            EventMembership.external_id == invitee_external_id,
+            EventMembership.member_id == invitee_external_id,
+            EventMembership.source == MemberSource.DISCORD,
         )
     ).first()
     if existing:
@@ -766,9 +756,8 @@ def invite_user_in_channel(
         return existing
     membership = EventMembership(
         event_id=event_id,
-        user_id=None,
-        external_source=ExternalSource.DISCORD,
-        external_id=invitee_external_id,
+        member_id=invitee_external_id,
+        source=MemberSource.DISCORD,
         role=role,
         status=MembershipStatus.PENDING,
     )

@@ -9,6 +9,8 @@ from .suggestions import SUGGESTIONS_PROMPT
 SYSTEM_PROMPT_TEMPLATE = ChatPromptTemplate.from_messages([
     ("system", SYSTEM_PROMPT),
     ("system", USER_CONTEXT_TEMPLATE),
+    ("system", "{user_addressing_instruction}"),
+    ("system", "Current UTC: {current_time}"),
 ])
 
 SUGGESTIONS_PROMPT_TEMPLATE = ChatPromptTemplate.from_messages([
