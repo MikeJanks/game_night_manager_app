@@ -23,9 +23,8 @@ def create_event(
     session: SessionDep = None
 ):
     """Create a new event."""
-    event = event_service.create_event(current_user.id, payload, session)
-    # Get full event details
-    event_data = event_service.get_event_scoped(current_user.id, event.id, session)
+    event = event_service.create_event_for_user(current_user.id, payload, session)
+    event_data = event_service.get_event_for_user(current_user.id, event.id, session)
     return EventRead(**event_data)
 
 
@@ -39,7 +38,7 @@ def list_events(
     session: SessionDep = None
 ):
     """List events with scoped visibility."""
-    events_data = event_service.list_events_scoped(
+    events_data = event_service.list_events_for_user(
         current_user.id,
         status_filter=status_filter,
         include_cancelled=include_cancelled,
@@ -58,7 +57,7 @@ def get_event(
     session: SessionDep = None
 ):
     """Get event details with scoped visibility."""
-    event_data = event_service.get_event_scoped(current_user.id, event_id, session)
+    event_data = event_service.get_event_for_user(current_user.id, event_id, session)
     return EventRead(**event_data)
 
 
@@ -70,9 +69,8 @@ def update_event_plan(
     session: SessionDep = None
 ):
     """Update event plan fields."""
-    event = event_service.update_event_plan(current_user.id, event_id, payload, session)
-    # Get full event details
-    event_data = event_service.get_event_scoped(current_user.id, event_id, session)
+    event = event_service.update_event_plan_for_user(current_user.id, event_id, payload, session)
+    event_data = event_service.get_event_for_user(current_user.id, event_id, session)
     return EventRead(**event_data)
 
 
@@ -83,7 +81,7 @@ def confirm_event(
     session: SessionDep = None
 ):
     """Confirm an event."""
-    event_service.set_event_status(current_user.id, event_id, EventStatus.CONFIRMED, session)
+    event_service.set_event_status_for_user(current_user.id, event_id, EventStatus.CONFIRMED, session)
     return {"success": True, "message": "Event confirmed"}
 
 
@@ -94,7 +92,7 @@ def cancel_event(
     session: SessionDep = None
 ):
     """Cancel an event."""
-    event_service.set_event_status(current_user.id, event_id, EventStatus.CANCELLED, session)
+    event_service.set_event_status_for_user(current_user.id, event_id, EventStatus.CANCELLED, session)
     return {"success": True, "message": "Event cancelled"}
 
 
@@ -105,7 +103,7 @@ def delete_event(
     session: SessionDep = None
 ):
     """Delete an event."""
-    event_service.delete_event(current_user.id, event_id, session)
+    event_service.delete_event_for_user(current_user.id, event_id, session)
     return None
 
 
@@ -120,7 +118,7 @@ def invite_user(
 ):
     """Invite a user to an event."""
     try:
-        event_service.invite_user(
+        event_service.invite_user_for_user(
             current_user.id, event_id, payload.invitee_user_id, payload.role, session
         )
         return InviteResponse(success=True, message="User invited")
@@ -141,7 +139,7 @@ def accept_invite(
 ):
     """Accept an event invite."""
     try:
-        event_service.accept_invite(current_user.id, event_id, session)
+        event_service.accept_invite_for_user(current_user.id, event_id, session)
         return {"success": True, "message": "Invite accepted"}
     except HTTPException:
         raise
@@ -160,7 +158,7 @@ def decline_invite(
 ):
     """Decline an event invite."""
     try:
-        event_service.decline_invite(current_user.id, event_id, session)
+        event_service.decline_invite_for_user(current_user.id, event_id, session)
         return {"success": True, "message": "Invite declined"}
     except HTTPException:
         raise
@@ -179,7 +177,7 @@ def leave_event(
 ):
     """Leave an event."""
     try:
-        event_service.leave_event(current_user.id, event_id, session)
+        event_service.leave_event_for_user(current_user.id, event_id, session)
         return {"success": True, "message": "Left event"}
     except HTTPException:
         raise

@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { authenticatedFetch } from '../utils/api'
 
-const API_URL = '/api/agent/chat'
-const STORAGE_KEY_PREFIX = 'agent_chat_conversation_'
+const API_URL = '/api/agents/user'
+const STORAGE_KEY_PREFIX = 'bot_session_conversation_'
 
-// Normalize message to internal format (type, content, failed?, name?)
+// Normalize message to internal format (type, content, failed?, name?, timestamp?)
 // Handles legacy format with role -> type
 const normalizeMessage = (m) => {
   if (Array.isArray(m)) {
@@ -24,6 +24,7 @@ const normalizeMessage = (m) => {
     content: m.content || '',
     failed: m.failed ?? false,
     name: m.name,
+    timestamp: m.timestamp,
   }
 }
 
@@ -220,7 +221,7 @@ const Chat = () => {
     const text = inputValue.trim()
     if (!text || isLoading) return
 
-    const newMsg = { type: 'human', content: text, failed: false }
+    const newMsg = { type: 'human', content: text, failed: false, timestamp: new Date().toISOString() }
     if (user?.id) newMsg.name = user.id
     const nextMessages = [...messages, newMsg]
     setMessages(nextMessages)
@@ -232,9 +233,10 @@ const Chat = () => {
     try {
       const messagesForBackend = nextMessages
         .filter((m) => !m.failed)
-        .map(({ type, content }) => {
+        .map(({ type, content, timestamp }) => {
           const msg = { type, content }
           if (type === 'human' && user?.id) msg.name = user.id
+          msg.timestamp = timestamp || new Date().toISOString()
           return msg
         })
 

@@ -20,12 +20,12 @@ A stateless Discord bot that monitors multiple channels, fetches message history
                             ▼                    ▼                    ▼
                      ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
                      │ Discord API  │     │ Build msg    │     │ HTTP POST    │
-                     │ history(N)   │     │ history      │     │ /agent/chat  │
+                     │ history(N)   │     │ history      │     │ /agents/channel  │
                      └──────────────┘     └──────────────┘     └──────────────┘
 ```
 
 - **Separate process**: Bot runs independently, not on the FastAPI server.
-- **HTTP client**: Calls `POST {API_BASE_URL}/api/agent/chat` (or internal endpoint).
+- **HTTP client**: Calls `POST {API_BASE_URL}/api/agents/channel`.
 - **Stateless, no DB**: No database. Every run fetches last N messages fresh from Discord API.
 
 ---
@@ -61,7 +61,7 @@ class ChannelState:
 4. **Processing cycle**:
    - Fetch last N messages from Discord API.
    - Build `AgentRequest` from messages.
-   - HTTP POST to `/agent/chat`.
+   - HTTP POST to `/api/agents/channel`.
    - Send response to Discord.
 5. **After cycle** → Set `processing = False`.
 6. **If `pending`** → Set `pending = False`, go to step 3 (another cycle).
@@ -71,41 +71,43 @@ No need to track message IDs. A boolean is enough: "something new arrived, run a
 
 ---
 
+## Integration Request Body (Required for `POST /api/agents/channel`)
+
+The request body **must** include:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `channel_id` | **Yes** | Discord channel id, e.g. `str(channel.id)`. |
+| `channel_member_ids` | **Yes** | List of Discord user IDs (snowflakes as strings) for everyone in that channel. The bot must fetch this via the Discord API (e.g. guild/channel member list for the channel) and send it on every request. The backend uses it only for validation (e.g. invite allowed only if invitee is in this list); it is **not** stored. |
+| `messages` | Yes | Conversation history (unchanged). |
+
+If `channel_id` or `channel_member_ids` is missing, the backend returns **400**.
+
+---
+
 ## Message Flow (Per Run)
 
 1. **Discord API**: `channel.history(limit=N)` — always fresh, no caching.
-2. **Build history**: Convert to `AgentRequest` format:
-   - Human: `{type: "human", content: "...", name: "<user_uuid>"}`
-   - AI: `{type: "ai", content: "..."}` (prior bot replies)
-3. **HTTP**: `POST {API_URL}/api/agent/chat` with JSON body.
+2. **Build request body**:
+   - **`channel_id`**: Set to the Discord channel id, e.g. `str(channel.id)`.
+   - **`channel_member_ids`**: List of Discord user IDs (snowflakes as strings) for everyone in that channel. Fetch via Discord API (e.g. guild/channel member list for the channel).
+   - **`messages`**: Convert to `AgentRequest` format:
+     - Human: `{type: "human", content: "...", name: "<discord_identifier>"}` — the `name` field **must** be the Discord identifier (e.g. `discord:{snowflake}` or bare snowflake). Display name is not required; Discord user id alone is sufficient.
+     - AI: `{type: "ai", content: "..."}` (prior bot replies)
+3. **HTTP**: `POST {API_BASE_URL}/api/agents/channel` with JSON body containing `channel_id`, `channel_member_ids`, and `messages`.
 4. **Response**: Post agent reply to Discord channel.
 
 ---
 
 ## User Mapping
 
-Tools expect `user_id` (UUID) in the `name` field of human messages. For Discord users:
+- **Human message `name`**: Must be the Discord identifier — e.g. `discord:{snowflake}` or bare snowflake. Display name is **not** required; Discord user id alone is sufficient.
+- **Backend resolution**: The integration route implies Discord. The backend resolves `discord:{snowflake}` or bare snowflake to an external member: `EventMembership` with `user_id=None`, `external_source=DISCORD`, `external_id` = snowflake. No separate "source" parameter is needed; the integration endpoint and the request body (`channel_id`, `channel_member_ids`) define the context.
+- **External members**: Discord users are represented as external members (`external_source = DISCORD`, `external_id` = Discord user ID string). `display_name` can remain null.
 
-**Chosen approach** — Use `EventMembership.external_source`, `external_id`, `display_name` for external members.
+### Invites (Channel Path)
 
-- Discord users who are not linked to app accounts are represented as external members.
-- `external_source = DISCORD`, `external_id` = Discord user ID (snowflake string), `display_name` = Discord username/nick.
-- When building messages for the agent, use a consistent identifier for the `name` field (e.g. `discord:{snowflake}`) so the agent/tools can resolve external members.
-- Tools may need to accept external identifiers (e.g. `discord:123456789`) in addition to UUIDs, and resolve via `EventMembership` when `user_id` is null and `external_source`/`external_id` are set.
-
-### Source Identification (Open Design Decision)
-
-**Revisit this when implementing.** The backend must know that a request came from Discord so it can set `EventMembership.external_source = DISCORD` when tools create or update memberships.
-
-**The issue:** Tools receive `user_id` from the agent (who copies it from the message `name`). When `user_id` is `"discord:123456789"` or a bare snowflake, the tool must not treat it as a UUID. Instead it must create `EventMembership` with `user_id=None`, `external_source=DISCORD`, `external_id="123456789"`. The system needs a reliable way to know that non-UUID identifiers in this request are Discord snowflakes.
-
-**Option A: Route-level `source` param** — Add `source: "discord"` to the request body or query. The handler passes it through to the graph/tools. Tools receive `source` via shared context; when `user_id` isn't a valid UUID, they use `source` to parse it and set `external_source`. *Pros:* Single place to declare source; easy to add Slack/Telegram later. *Cons:* Requires threading `source` through handler → graph → tools.
-
-**Option B: Dedicated route** — Create `POST /api/bot/discord` (or `/api/agent/chat/discord`). The route itself implies `source = "discord"`; handler hardcodes it. Same tool logic as Option A. *Pros:* No extra param; URL is self-documenting. *Cons:* New route per integration.
-
-**Option C: Message-level `source` on NamedHumanMessage** — Add `source: "discord"` to each human message (e.g. in `additional_kwargs`). *Problem:* Tools only receive `user_id` from the agent's tool call, not the original message. The agent would need to pass `source` in the tool call too (schema change), or the graph would need to aggregate source from messages and pass it to tools (effectively Option A). *Pros:* Per-message granularity; could support mixed sources in one request. *Cons:* More complex; tools still need request-level source unless the agent is explicitly taught to pass it.
-
-**Option D: Self-describing format in `name` (no separate source)** — Use `name="discord:123456789"`. The format encodes the source. Tools parse: if `user_id` matches `discord:(\d+)`, set `external_source=DISCORD`, `external_id=group(1)`; otherwise treat as UUID. *Pros:* No route changes; no extra params; tools can parse locally. *Cons:* Convention must be documented; future sources need new prefixes (`slack:`, `telegram:`).
+When using the integration endpoint (channel path), **only Discord ids** may be used for invites. The invitee's Discord id must be in the request's `channel_member_ids`; the backend rejects invites for users not in that list. App user UUIDs are **not** used for invites on the channel path.
 
 ---
 
@@ -128,10 +130,10 @@ Discord-specific prompt addition:
 
 ### Auth
 
-The existing `/agent/chat` requires JWT (`current_active_user`). For the bot:
+The existing `/api/agents/user` requires JWT (`current_active_user`). For the bot:
 
-- Add internal route or extend existing; require `X-API-Key` header (or equivalent).
-- Same request/response schema as `/agent/chat`.
+- Use `/api/agents/channel`; require `X-API-Key` header (or equivalent).
+- Same request/response schema as `/api/agents/user`.
 - No user auth; bot calls on behalf of the channel.
 
 ---
@@ -141,10 +143,12 @@ The existing `/agent/chat` requires JWT (`current_active_user`). For the bot:
 ```bash
 DISCORD_BOT_TOKEN=...
 API_BASE_URL=https://your-api.vercel.app
-DISCORD_API_KEY=...              # For X-API-Key on internal route
-DISCORD_CHANNEL_IDS=123,456,789  # Comma-separated channel IDs
-MESSAGE_HISTORY_LIMIT=25
+DISCORD_API_KEY=...                  # For X-API-Key on /api/agents/channel
 ```
+
+`MESSAGE_HISTORY_LIMIT` is a constant in config (default 25).
+
+**No channel IDs.** The bot responds in any channel it can read. Each `on_message` event includes the channel; the bot fetches history from and replies to that channel. No allow-list or config needed.
 
 ---
 
@@ -157,7 +161,7 @@ bot/
 │   ├── PLAN.md           # This file
 │   ├── __init__.py
 │   ├── main.py           # Entry point, Discord client setup
-│   ├── config.py         # Load env vars (channel IDs, N, API URL, etc.)
+│   ├── config.py         # Load env vars (N, API URL, etc.)
 │   ├── message_builder.py # Discord messages → AgentRequest format
 │   ├── channel_processor.py # Per-channel state, processing loop
 │   └── client.py         # HTTP client for /chat API
@@ -170,10 +174,10 @@ bot/
 ### Phase 1: Core
 - Discord client, `on_message` handler.
 - Fetch last N messages via Discord API.
-- Build `AgentRequest` from messages.
-- HTTP POST to `/agent/chat` (or internal endpoint).
+- Fetch channel member list for `channel_member_ids`.
+- Build request body: `channel_id`, `channel_member_ids`, `messages` (human message `name` = Discord identifier, e.g. `discord:{snowflake}`).
+- HTTP POST to `/api/agents/channel`.
 - Send response to Discord.
-- **Revisit**: Source Identification (User Mapping section).
 
 ### Phase 2: Queue & Cleanup
 - Per-channel in-memory state (`processing`, `pending`).
@@ -182,24 +186,18 @@ bot/
 - Delete channel state when idle.
 
 ### Phase 3: User Mapping
-- Use `EventMembership.external_source`, `external_id`, `display_name` for Discord users.
-- Message builder: use `discord:{snowflake}` as `name` for human messages.
-- Tools: support external identifiers; resolve via `EventMembership` when `user_id` is null.
-- **Revisit**: Source Identification (route param vs. dedicated route vs. message-level vs. self-describing format).
+- Message builder: use `discord:{snowflake}` (or bare snowflake) as `name` for human messages. Backend resolves to external member automatically on the integration route.
+- Backend already supports external identifiers; no app-side change needed beyond sending `channel_id` and `channel_member_ids`.
 
 ### Phase 4: Vibe-Reactive Behavior
 - Discord-specific prompt (read the room, react to vibe, ready to help when moment is right).
 - Response filtering (don't post when nothing useful).
 
 ### Phase 5: Multi-Channel
-- Config-driven channel list.
-- Verify per-channel isolation.
+- Respond in any channel the bot can read (channel is inherent to each message).
+- Verify per-channel isolation (in-memory state keyed by channel_id).
 
 ---
-
-## Open Decisions (Revisit During Implementation)
-
-- **Source Identification**: Route param vs. dedicated route vs. message-level keyword vs. self-describing format. See User Mapping → Source Identification.
 
 ---
 

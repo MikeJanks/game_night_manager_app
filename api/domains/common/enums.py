@@ -17,5 +17,6 @@ class MembershipStatus(str, Enum):
     ACCEPTED = "ACCEPTED"
 
 
-class ExternalSource(str, Enum):
-    DISCORD = "discord"
+class MemberSource(str, Enum):
+    APP_USER = "APP_USER"
+    DISCORD = "DISCORD"

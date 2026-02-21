@@ -1,1 +1,1 @@
-"""Agents package: shared infrastructure and per-agent modules (chat, etc.)."""
+"""Agent API: user (1:1) and channel (1:many) routes."""
