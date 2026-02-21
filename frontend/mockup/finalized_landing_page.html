@@ -1,0 +1,615 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Game Night Manager - Stop planning. Start playing.</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#f42559",
+              "primary-glow": "#ff5c8d",
+              "dark-base": "#0a0a0c",
+              "dark-surface": "#131316",
+              "dark-border": "#27272a",
+              "glass-border": "rgba(255, 255, 255, 0.08)",
+              "glass-bg": "rgba(255, 255, 255, 0.03)",
+              "accent-purple": "#a855f7",
+              "accent-cyan": "#06b6d4",
+              "discord-blurple": "#5865F2",
+              "discord-dark": "#36393f",
+              "discord-darker": "#2f3136",
+              "discord-green": "#3ba55c",
+              "discord-embed-border": "#202225",
+            },
+            fontFamily: {
+              display: ["Manrope", "sans-serif"],
+              body: ["Inter", "sans-serif"],
+            },
+            backgroundImage: {
+              "hero-glow":
+                "radial-gradient(circle at 50% 50%, rgba(244, 37, 89, 0.15) 0%, rgba(10, 10, 12, 0) 50%)",
+              "shard-gradient":
+                "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.01) 100%)",
+              "prism-border":
+                "linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 20%, rgba(255,255,255,0.05) 100%)",
+            },
+            boxShadow: {
+              glass: "0 8px 32px 0 rgba(0, 0, 0, 0.3)",
+              prism:
+                "0 0 15px rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(255,255,255,0.05)",
+              neon: "0 0 20px rgba(244, 37, 89, 0.5)",
+              "subtle-glow": "0 0 40px -10px rgba(168, 85, 247, 0.2)",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #0a0a0c;
+        color: #e2e8f0;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: "Manrope", sans-serif;
+      }
+
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .discord-glass {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+
+      .text-glow {
+        text-shadow: 0 0 30px rgba(244, 37, 89, 0.3);
+      }
+
+      .floating-shard {
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .floating-shard-delayed {
+        animation: float 8s ease-in-out infinite reverse;
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0px) rotate(0deg);
+        }
+
+        50% {
+          transform: translateY(-20px) rotate(2deg);
+        }
+
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+      }
+
+      .perspective-container {
+        perspective: 1000px;
+      }
+
+      .rotate-3d {
+        transform-style: preserve-3d;
+        transform: rotateY(-10deg) rotateX(5deg);
+      }
+    </style>
+  </head>
+
+  <body class="bg-dark-base overflow-x-hidden text-slate-200">
+    <nav
+      class="bg-dark-base/80 fixed top-0 right-0 left-0 z-50 border-b border-white/5 backdrop-blur-md transition-all duration-300"
+    >
+      <div
+        class="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4"
+      >
+        <div
+          class="flex cursor-pointer items-center gap-3 transition-opacity hover:opacity-80"
+        >
+          <div
+            class="from-primary to-accent-purple shadow-primary/20 flex size-8 items-center justify-center rounded-lg bg-gradient-to-br text-white shadow-lg"
+          >
+            <span class="material-symbols-outlined text-xl">casino</span>
+          </div>
+          <span class="text-xl font-extrabold tracking-tight text-white"
+            >Game Night</span
+          >
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            class="hidden px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:text-white sm:flex"
+          >
+            Log in
+          </button>
+          <button
+            class="text-dark-base flex h-9 cursor-pointer items-center justify-center rounded-lg bg-white px-5 text-sm font-bold transition-all hover:bg-slate-200"
+          >
+            Get Started
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <header
+      class="relative flex min-h-screen items-center overflow-hidden pt-32 pb-20 lg:pt-48 lg:pb-32"
+    >
+      <div
+        class="pointer-events-none absolute top-0 left-0 -z-10 h-full w-full overflow-hidden"
+      >
+        <div
+          class="bg-primary/10 absolute top-[-10%] left-[-10%] h-[50%] w-[50%] rounded-full blur-[120px]"
+        ></div>
+        <div
+          class="bg-accent-purple/10 absolute right-[-10%] bottom-[-10%] h-[40%] w-[40%] rounded-full blur-[100px]"
+        ></div>
+        <div
+          class="bg-accent-cyan/5 absolute top-[20%] right-[20%] h-[30%] w-[30%] rounded-full blur-[80px]"
+        ></div>
+      </div>
+      <div
+        class="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-16 px-6 lg:grid-cols-2"
+      >
+        <div class="relative z-10 flex flex-col gap-8">
+          <div class="flex flex-wrap gap-2">
+            <div
+              class="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-md"
+            >
+              <span
+                class="bg-accent-cyan flex h-1.5 w-1.5 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.6)]"
+              ></span>
+              <span class="text-xs font-semibold tracking-wide text-slate-300"
+                >DISCORD BOT — LIVE</span
+              >
+            </div>
+            <div
+              class="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-md"
+            >
+              <span
+                class="bg-accent-cyan flex h-1.5 w-1.5 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.6)]"
+              ></span>
+              <span class="text-xs font-semibold tracking-wide text-slate-300"
+                >WEB CHAT — LIVE</span
+              >
+            </div>
+          </div>
+          <h1
+            class="text-5xl leading-[1.1] font-bold tracking-tight text-white md:text-7xl"
+          >
+            Stop planning. <br />
+            <span
+              class="bg-gradient-to-r from-slate-200 via-white to-slate-400 bg-clip-text text-transparent"
+              >Start playing.</span
+            >
+          </h1>
+          <p class="max-w-lg text-lg leading-relaxed font-light text-slate-400">
+            Drop the plan in the chat. It'll lock the time, confirm the squad,
+            and end the endless "wait what time?"
+          </p>
+          <div class="flex flex-col gap-4 pt-4 sm:flex-row">
+            <button
+              class="group bg-primary relative flex h-12 items-center justify-center gap-2 overflow-hidden rounded-lg px-8 text-base font-semibold text-white transition-all hover:shadow-[0_0_20px_rgba(244,37,89,0.4)]"
+            >
+              <div
+                class="absolute inset-0 translate-y-full bg-white/20 transition-transform duration-300 group-hover:translate-y-0"
+              ></div>
+              <span class="relative z-10 flex items-center gap-2">
+                Add to Discord
+                <span class="material-symbols-outlined text-sm"
+                  >arrow_forward</span
+                >
+              </span>
+            </button>
+            <button
+              class="flex h-12 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-8 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/10"
+            >
+              Try the Web Chat
+            </button>
+          </div>
+          <div class="mt-6 flex flex-wrap gap-4" data-purpose="trust-badges">
+            <div
+              class="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 opacity-60"
+            >
+              <div class="flex items-center gap-1.5">
+                <span
+                  class="material-symbols-outlined text-[12px] text-slate-500"
+                  >lock</span
+                >
+                <span
+                  class="text-[10px] font-medium tracking-[0.15em] text-slate-500 uppercase"
+                  >Private</span
+                >
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span
+                  class="material-symbols-outlined text-[12px] text-slate-500"
+                  >horizontal_rule</span
+                >
+                <span
+                  class="text-[10px] font-medium tracking-[0.15em] text-slate-500 uppercase"
+                  >No Logging</span
+                >
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span
+                  class="material-symbols-outlined text-[12px] text-slate-500"
+                  >terminal</span
+                >
+                <span
+                  class="text-[10px] font-medium tracking-[0.15em] text-slate-500 uppercase"
+                  >Zero Commands</span
+                >
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span
+                  class="material-symbols-outlined text-[12px] text-slate-500"
+                  >bolt</span
+                >
+                <span
+                  class="text-[10px] font-medium tracking-[0.15em] text-slate-500 uppercase"
+                  >Seamless</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="perspective-container relative z-0 flex h-[500px] w-full items-center justify-center lg:ml-12"
+        >
+          <div
+            class="glass-panel rotate-3d prism-border relative z-20 flex w-[400px] flex-col overflow-hidden rounded-xl shadow-2xl"
+          >
+            <div class="prism-highlight"></div>
+            <div
+              class="flex items-center justify-between border-b border-white/5 bg-black/20 p-3"
+            >
+              <div class="flex items-center gap-2">
+                <div class="h-5 w-5 text-slate-400">
+                  <span class="material-symbols-outlined text-lg">tag</span>
+                </div>
+                <span class="text-sm font-bold tracking-tight text-white"
+                  >scheduling</span
+                >
+              </div>
+              <div class="flex items-center gap-3 text-slate-400">
+                <span
+                  class="material-symbols-outlined cursor-pointer text-lg hover:text-white"
+                  >notifications</span
+                >
+                <span
+                  class="material-symbols-outlined cursor-pointer text-lg hover:text-white"
+                  >people</span
+                >
+                <div
+                  class="flex h-6 w-48 items-center rounded bg-black/30 px-2 text-[10px] text-slate-500"
+                >
+                  Search
+                </div>
+              </div>
+            </div>
+            <div
+              class="flex flex-1 flex-col justify-end space-y-4 bg-gradient-to-b from-transparent to-black/10 p-4"
+            >
+              <div class="group flex gap-3">
+                <div
+                  class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500 text-xs font-bold text-white shadow-lg"
+                >
+                  DM
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-baseline gap-2">
+                    <span
+                      class="cursor-pointer text-sm font-medium text-white hover:underline"
+                      >DungeonMaster</span
+                    >
+                    <span class="text-[10px] text-slate-400"
+                      >Today at 8:29 PM</span
+                    >
+                  </div>
+                  <div class="mt-0.5 text-sm text-slate-200">
+                    anyone down for DnD Friday?
+                  </div>
+                </div>
+              </div>
+              <div class="mt-1 flex gap-3">
+                <div
+                  class="from-primary to-accent-purple shadow-primary/20 mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br shadow-lg"
+                >
+                  <span class="material-symbols-outlined text-sm text-white"
+                    >smart_toy</span
+                  >
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="flex items-center gap-1 text-sm font-medium text-white"
+                    >
+                      Game Night Bot
+                      <span
+                        class="bg-primary rounded-[3px] px-1 py-[1px] text-[9px] font-bold tracking-wide text-white uppercase"
+                        >BOT</span
+                      >
+                    </span>
+                    <span class="text-[10px] text-slate-400"
+                      >Today at 8:29 PM</span
+                    >
+                  </div>
+                  <div class="mt-0.5 text-sm text-slate-200">
+                    Want me to lock that in?
+                  </div>
+                  <div
+                    class="border-primary mt-1.5 max-w-[95%] rounded-r-md border-l-4 bg-black/20 p-3"
+                  >
+                    <div class="mb-2 flex items-center gap-2">
+                      <div
+                        class="h-4 w-4 animate-pulse rounded-full bg-green-500"
+                      ></div>
+                      <span class="text-xs font-bold text-white"
+                        >DnD session 4</span
+                      >
+                    </div>
+                    <div
+                      class="mb-3 flex items-center gap-3 rounded border border-white/5 bg-white/5 p-2"
+                    >
+                      <div class="rounded bg-white/10 p-1.5 text-white">
+                        <span class="material-symbols-outlined text-lg"
+                          >calendar_month</span
+                        >
+                      </div>
+                      <div>
+                        <div class="text-xs font-bold text-white">
+                          Friday, Nov 24
+                        </div>
+                        <div class="text-[10px] text-slate-400">
+                          7:00 PM EST
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex gap-2">
+                      <button
+                        class="bg-primary hover:bg-primary-glow shadow-primary/20 rounded px-3 py-1.5 text-[10px] font-bold text-white shadow-lg transition-colors"
+                      >
+                        Accept
+                      </button>
+                      <button
+                        class="rounded border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-bold text-slate-300 transition-colors hover:bg-white/10"
+                      >
+                        Suggest Other
+                      </button>
+                    </div>
+                    <div class="mt-2 text-[9px] text-slate-500">
+                      <span class="text-green-400">3</span> confirmed
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="m-2 flex items-center gap-3 rounded-lg border-t border-white/5 bg-black/10 p-3"
+            >
+              <div
+                class="flex h-5 w-5 items-center justify-center rounded-full bg-slate-500"
+              >
+                <span
+                  class="material-symbols-outlined text-[14px] font-bold text-black"
+                  >add</span
+                >
+              </div>
+              <div class="flex-1 text-xs font-medium text-slate-500">
+                Message #scheduling
+              </div>
+              <div class="flex gap-2 text-slate-400">
+                <span class="material-symbols-outlined text-lg">gif_box</span>
+                <span class="material-symbols-outlined text-lg"
+                  >sentiment_satisfied</span
+                >
+              </div>
+            </div>
+          </div>
+          <div
+            class="from-accent-purple/20 border-accent-purple/20 floating-shard-delayed absolute top-12 -right-8 -z-10 h-24 w-24 rotate-[15deg] transform rounded-xl border bg-gradient-to-br to-transparent backdrop-blur-md"
+          ></div>
+          <div
+            class="from-accent-cyan/20 border-accent-cyan/20 floating-shard absolute bottom-16 -left-6 -z-10 h-16 w-16 -rotate-[10deg] transform rounded-lg border bg-gradient-to-tl to-transparent backdrop-blur-md"
+          ></div>
+          <div
+            class="pointer-events-none absolute top-1/4 right-0 z-0 h-[1px] w-[120%] -rotate-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent"
+          ></div>
+        </div>
+      </div>
+    </header>
+    <section
+      class="bg-dark-base relative overflow-hidden border-t border-white/5 px-6 py-16"
+    >
+      <div
+        class="via-dark-base to-dark-base absolute top-0 left-0 h-full w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 opacity-50"
+      ></div>
+      <div class="relative z-10 mx-auto max-w-[1000px]">
+        <div class="mb-12 text-center">
+          <h2 class="mb-4 text-3xl font-bold text-white md:text-4xl">
+            Your Personal Event Coordinator
+          </h2>
+          <p class="mx-auto max-w-xl text-base font-light text-slate-400">
+            Focus on the game, not the logistics. We handle the boring stuff.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div
+            class="group bg-dark-surface hover:border-primary/30 rounded-2xl border border-white/5 p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.02]"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="bg-primary/10 text-primary flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-shadow group-hover:shadow-[0_0_15px_rgba(244,37,89,0.2)]"
+              >
+                <span class="material-symbols-outlined text-xl">sync_alt</span>
+              </div>
+              <div>
+                <h3 class="mb-2 text-base font-bold text-white">
+                  Vibe-reactive
+                </h3>
+                <p class="text-xs leading-relaxed text-slate-400">
+                  Built for the group that's always down but never locks in. It
+                  grabs a time, gets the headcount, and keeps the plan tight in
+                  one place.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="group bg-dark-surface hover:border-accent-cyan/30 rounded-2xl border border-white/5 p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.02]"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="bg-accent-cyan/10 text-accent-cyan flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-shadow group-hover:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+              >
+                <span class="material-symbols-outlined text-xl"
+                  >psychology</span
+                >
+              </div>
+              <div>
+                <h3 class="mb-2 text-base font-bold text-white">
+                  Plan stays readable
+                </h3>
+                <p class="text-xs leading-relaxed text-slate-400">
+                  No more digging through 200 messages to find the time. It
+                  keeps the details tight and easy to update so the plan doesn't
+                  get cooked by scrollback.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="group bg-dark-surface hover:border-accent-purple/30 rounded-2xl border border-white/5 p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.02]"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="bg-accent-purple/10 text-accent-purple flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-shadow group-hover:shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+              >
+                <span class="material-symbols-outlined text-xl"
+                  >notifications_active</span
+                >
+              </div>
+              <div>
+                <h3 class="mb-2 text-base font-bold text-white">
+                  Squad control
+                </h3>
+                <p class="text-xs leading-relaxed text-slate-400">
+                  Ping the squad, get quick replies, and keep the headcount
+                  straight. Everyone stays locked in without you babysitting the
+                  thread.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="group bg-dark-surface rounded-2xl border border-white/5 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.02]"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white/5 text-white transition-shadow group-hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+              >
+                <span class="material-symbols-outlined text-xl">security</span>
+              </div>
+              <div>
+                <h3 class="mb-2 text-base font-bold text-white">
+                  Privacy by design
+                </h3>
+                <p class="text-xs leading-relaxed text-slate-400">
+                  It processes messages live to help you plan, then it's done.
+                  No calendar linking. No building a chat-history profile. Just
+                  the plan, kept clean.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section
+      class="bg-dark-base relative overflow-hidden border-t border-white/5 px-6 py-20 text-center"
+    >
+      <div
+        class="bg-primary/10 pointer-events-none absolute top-1/2 left-1/2 h-[400px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[100px]"
+      ></div>
+      <div
+        class="relative z-10 mx-auto flex max-w-[800px] flex-col items-center gap-8"
+      >
+        <h2 class="text-4xl font-bold tracking-tight text-white md:text-5xl">
+          Ready to lock in?
+        </h2>
+        <p class="max-w-xl text-lg font-light text-slate-400">
+          Don't let the hype die in the thread. Lock the time, confirm who's in,
+          and run it.
+        </p>
+        <div class="flex w-full flex-col justify-center gap-4 sm:flex-row">
+          <button
+            class="text-dark-base flex h-14 items-center justify-center gap-2 rounded-lg bg-white px-10 text-lg font-bold transition-all hover:scale-105 hover:bg-slate-200"
+          >
+            Add to Discord
+            <span class="material-symbols-outlined">arrow_forward</span>
+          </button>
+          <button
+            class="flex h-14 items-center justify-center gap-2 rounded-lg border border-white/20 bg-transparent px-10 text-lg font-bold text-white transition-all hover:scale-105 hover:bg-white/5"
+          >
+            Try the Web Chat
+          </button>
+        </div>
+      </div>
+    </section>
+    <footer class="bg-dark-surface border-t border-white/5 py-8">
+      <div class="mx-auto max-w-[1200px] px-6">
+        <div
+          class="flex flex-col items-center justify-between gap-6 md:flex-row"
+        >
+          <div class="flex items-center gap-2 text-white">
+            <div
+              class="from-primary to-accent-purple flex size-6 items-center justify-center rounded bg-gradient-to-br text-xs text-white shadow-lg"
+            >
+              <span class="material-symbols-outlined text-[14px]">casino</span>
+            </div>
+            <span class="text-lg font-bold">Game Night</span>
+          </div>
+          <p class="text-sm text-slate-600">
+            © 2026 Game Night Manager. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

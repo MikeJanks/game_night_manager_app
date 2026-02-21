@@ -4,6 +4,14 @@
 
 An AI assistant that reads the room and helps turn casual chat into real game nights. You and a friend are talking about how you've been wanting to play Catan for a while—the assistant picks up on the vibe and chimes in: "Want to lock in a time?" It's ready to help when the moment feels right, not pushy or annoying. Users interact primarily through reactive bots in chat apps (Discord, Slack, Telegram, etc.) and secondarily through a standalone web UI. They use natural language to create gaming events, coordinate with participants, and manage event planning. The assistant handles the complexity of event planning, invitations, and coordination, allowing users to focus on playing games together.
 
+## Marketing & Tone
+
+**Avoid AI-forward language in user-facing marketing.** Terms like "AI" and "assistant" often feel cold or generic and can push people away. Instead, use a friendly, human tone—e.g., "buddy," "game night buddy"—that emphasizes the experience, not the technology.
+
+**Tone guidelines:** Chill, inviting, natural. Use second person ("you"), short sentences, active voice. No AI jargon in hero copy, landing pages, or bot personality.
+
+**Scope:** This applies to user-facing marketing (README, landing page, Discord bot persona). Internal docs and technical specs may still use "assistant" or "agent" where clarity requires it.
+
 ## Interaction Channels
 
 **Primary:** Reactive bots in chat applications. The assistant lives where users already convene—chat apps. It reads the conversation, reacts to the current vibe (e.g. when people mention wanting to play a game or suggest a game night), and offers to help when it feels natural. The system is built generic so it can plug into Discord, Slack, Telegram, and others. Discord is the first integration; new channels can be added without changing core logic.
@@ -11,6 +19,8 @@ An AI assistant that reads the room and helps turn casual chat into real game ni
 **Secondary:** A standalone web UI remains available for users who prefer a dedicated interface. It provides a chat-only interface and is not the primary path.
 
 **Architecture (unchanged):** REST APIs, database, and event-user-member flow stay as-is. Chat bots and the standalone UI both consume the same backend.
+
+**Discord integration:** The Discord bot runs as a separate process. It joins any channel it can read (no channel allow-list), fetches recent message history from the Discord API on each message, and posts to the backend. Stateless—no database; every run fetches fresh context. In Discord, invites use Discord user IDs (e.g. mentions); invitees must be in the channel.
 
 ---
 
@@ -33,11 +43,15 @@ An AI assistant that reads the room and helps turn casual chat into real game ni
 - **List events**: Browse events the user is a member of, with optional filtering by status, including or excluding cancelled events
 
 ### Event Participation & Invitations
-- **Invite users to events**: Invite other users (by user ID) to events with roles (host or attendee)
+- **Invite users to events**: Invite others with roles (host or attendee). Web: invite by app user ID. Discord: invite by Discord user ID (mention); invitee must be in the channel.
 - **Accept event invitations**: Accept pending invitations to events
 - **Decline event invitations**: Decline pending invitations
 - **Leave events**: Remove yourself from events you're participating in
 - **View event membership**: See who is participating in events, their roles, and invitation status
+
+### Game Context & Suggestions
+- **Game context lookup:** The assistant can search the web for information about games (e.g., player count, playtime, rules summary) to help users choose games or answer questions. Results inform suggestions and answers; the system does not store or index external game data.
+- **Game suggestions from history:** The assistant suggests games based on past events (games from events the user or channel has participated in). Future: support for games mentioned in conversation but not yet played.
 
 ---
 
@@ -104,7 +118,7 @@ An AI assistant that reads the room and helps turn casual chat into real game ni
 **User says**: "Show me all my events"
 
 **System guarantees**:
-- Users can see events where they are members (pending or accepted)
+- **Web:** Users see events where they are members (pending or accepted). **Chat channels (e.g. Discord):** Users see all events created in that channel; visibility is channel-scoped.
 - Events can be filtered by status (planning, confirmed, cancelled)
 - Cancelled events are hidden by default but can be included
 - The system shows membership details including role and status
@@ -139,11 +153,13 @@ An AI assistant that reads the room and helps turn casual chat into real game ni
 
 ---
 
-## Next Steps
+## Conversation Context (Planned)
 
-1. **Short chat summaries:** Store text summaries per event in the DB. These summaries capture what happened in the conversation so the agent can reference prior context without re-reading full message history.
+1. **Short chat summaries:** Text summaries per event stored in the DB. The agent references prior context without re-reading full message history.
 
-2. **Truncated history:** Maintain a sliding window of recent messages per event. The window size depends on context (e.g., event size, channel limits). The agent uses this history so it's not blind to what just happened.
+2. **Truncated history:** A sliding window of recent messages per event/channel. Window size depends on context. Keeps the agent aware of recent conversation without unbounded history.
+
+3. **Game mentions in summaries:** Games mentioned in conversation (but not yet in events) captured in summaries for recall and suggestions.
 
 ---
 
@@ -182,6 +198,11 @@ An AI assistant that reads the room and helps turn casual chat into real game ni
    - Leaving an event removes membership permanently
    - The system does not automatically cascade deletions
 
+7. **Privacy**:
+   - Messages are processed in real time and never stored
+   - Conversation history is not persisted beyond the current request
+   - Compute, suggest, and move on—no message retention
+
 ### Non-Goals
 
 1. **No Authentication or Authorization Details**: The system manages user accounts but does not specify how users log in or authenticate. All operations assume an authenticated user context. (The implementation uses JWT auth for the web UI.)
@@ -194,7 +215,7 @@ An AI assistant that reads the room and helps turn casual chat into real game ni
 
 5. **No Advanced Social Features**: The system does not provide direct messaging between users, user profiles beyond basic info, ratings, reviews, friend connections, or social networking features beyond event participation.
 
-6. **No Game Library Integration**: The system does not fetch game information from external databases or provide game descriptions, images, or metadata. Events use free-form game names.
+6. **No Built-in Game Database**: The system does not maintain its own game catalog. Events use free-form game names. Optional web search provides on-demand game context (player count, playtime, etc.); results are not stored or indexed.
 
 7. **No Event Discovery or Recommendations**: The system does not suggest events to users or provide discovery features beyond explicit search and member-based visibility.
 

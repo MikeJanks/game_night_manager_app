@@ -35,7 +35,6 @@ def create_channel_agent_tools(
     platform: str,
 ) -> List[BaseTool]:
     """Tools for channel (integration) path: channel-scoped event tools."""
-    user_tools = create_user_tools(session)
     event_tools = create_channel_event_tools(session, channel_id, channel_member_ids, platform)
     custom_tools = create_custom_agent_tools()
-    return user_tools + event_tools + custom_tools
+    return event_tools + custom_tools
