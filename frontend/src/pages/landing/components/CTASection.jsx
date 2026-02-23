@@ -21,7 +21,7 @@ const CTASection = () => {
             className="text-dark-base flex h-14 items-center justify-center gap-2 rounded-lg bg-white px-10 text-lg font-bold transition-all hover:scale-105 hover:bg-slate-200"
           >
             Add to Discord
-            <span className="material-symbols-outlined">arrow_forward</span>
+            <span className="font-material-symbols">arrow_forward</span>
           </button>
           <button
             className="flex h-14 items-center justify-center gap-2 rounded-lg border border-white/20 bg-transparent px-10 text-lg font-bold text-white transition-all hover:scale-105 hover:bg-white/5"

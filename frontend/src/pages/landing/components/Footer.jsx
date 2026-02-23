@@ -9,7 +9,7 @@ const Footer = () => {
             <div
               className="from-primary to-accent-purple flex size-6 items-center justify-center rounded bg-gradient-to-br text-xs text-white shadow-lg"
             >
-              <span className="material-symbols-outlined text-[14px]">
+              <span className="font-material-symbols text-[14px]">
                 casino
               </span>
             </div>

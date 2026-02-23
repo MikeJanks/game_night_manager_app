@@ -47,7 +47,7 @@ const HeroContent = () => {
           ></div>
           <span className="relative z-10 flex items-center gap-2">
             Add to Discord
-            <span className="material-symbols-outlined text-sm"
+            <span className="font-material-symbols text-sm"
               >arrow_forward</span
             >
           </span>

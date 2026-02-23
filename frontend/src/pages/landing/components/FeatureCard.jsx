@@ -9,7 +9,7 @@ const FeatureCard = ({
     <div className={cardClassName}>
       <div className="flex items-start gap-4">
         <div className={iconClassName}>
-          <span className="material-symbols-outlined text-xl">{icon}</span>
+          <span className="font-material-symbols text-xl">{icon}</span>
         </div>
         <div>
           <h3 className="mb-2 text-base font-bold text-white">
