@@ -1,17 +1,17 @@
 const DiscordMockup = () => {
   return (
     <div
-      className="perspective-container relative z-0 flex h-[500px] w-full items-center justify-center lg:ml-12"
+      className="perspective-[1000px] relative z-0 flex h-[500px] w-full items-center justify-center lg:ml-12"
     >
       <div
-        className="glass-panel rotate-3d relative z-20 flex w-[400px] flex-col overflow-hidden rounded-xl shadow-2xl"
+        className="glass-panel transform-3d transform-[rotateY(-10deg)_rotateX(5deg)] relative z-20 flex w-[400px] flex-col overflow-hidden rounded-xl shadow-2xl"
       >
         <div
           className="flex items-center justify-between border-b border-white/5 bg-black/20 p-3"
         >
           <div className="flex items-center gap-2">
             <div className="h-5 w-5 text-slate-400">
-              <span className="material-symbols-outlined text-lg">tag</span>
+              <span className="font-material-symbols text-lg">tag</span>
             </div>
             <span className="text-sm font-bold tracking-tight text-white"
               >scheduling</span
@@ -19,11 +19,11 @@ const DiscordMockup = () => {
           </div>
           <div className="flex items-center gap-3 text-slate-400">
             <span
-              className="material-symbols-outlined cursor-pointer text-lg hover:text-white"
+              className="font-material-symbols cursor-pointer text-lg hover:text-white"
               >notifications</span
             >
             <span
-              className="material-symbols-outlined cursor-pointer text-lg hover:text-white"
+              className="font-material-symbols cursor-pointer text-lg hover:text-white"
               >people</span
             >
             <div
@@ -34,11 +34,11 @@ const DiscordMockup = () => {
           </div>
         </div>
         <div
-          className="flex flex-1 flex-col justify-end space-y-4 bg-gradient-to-b from-transparent to-black/10 p-4"
+          className="flex flex-1 flex-col justify-end space-y-4 bg-linear-to-b from-transparent to-black/10 p-4"
         >
           <div className="group flex gap-3">
             <div
-              className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-indigo-500 text-xs font-bold text-white shadow-lg"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-xs font-bold text-white shadow-lg"
             >
               DM
             </div>
@@ -59,9 +59,9 @@ const DiscordMockup = () => {
           </div>
           <div className="mt-1 flex gap-3">
             <div
-              className="from-primary to-accent-purple shadow-primary/20 mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br shadow-lg"
+              className="from-primary to-accent-purple shadow-primary/20 mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br shadow-lg"
             >
-              <span className="material-symbols-outlined text-sm text-white"
+              <span className="font-material-symbols text-sm text-white"
                 >smart_toy</span
               >
             </div>
@@ -72,7 +72,7 @@ const DiscordMockup = () => {
                 >
                   Game Night Bot
                   <span
-                    className="bg-primary rounded-[3px] px-1 py-[1px] text-[9px] font-bold tracking-wide text-white uppercase"
+                    className="bg-primary rounded-[3px] px-1 py-px text-[9px] font-bold tracking-wide text-white uppercase"
                     >BOT</span
                   >
                 </span>
@@ -98,7 +98,7 @@ const DiscordMockup = () => {
                   className="mb-3 flex items-center gap-3 rounded border border-white/5 bg-white/5 p-2"
                 >
                   <div className="rounded bg-white/10 p-1.5 text-white">
-                    <span className="material-symbols-outlined text-lg"
+                    <span className="font-material-symbols text-lg"
                       >calendar_month</span
                     >
                   </div>
@@ -137,7 +137,7 @@ const DiscordMockup = () => {
             className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-500"
           >
             <span
-              className="material-symbols-outlined text-[14px] font-bold text-black"
+              className="font-material-symbols text-[14px] font-bold text-black"
               >add</span
             >
           </div>
@@ -145,21 +145,18 @@ const DiscordMockup = () => {
             Message #scheduling
           </div>
           <div className="flex gap-2 text-slate-400">
-            <span className="material-symbols-outlined text-lg">gif_box</span>
-            <span className="material-symbols-outlined text-lg"
+            <span className="font-material-symbols text-lg">gif_box</span>
+            <span className="font-material-symbols text-lg"
               >sentiment_satisfied</span
             >
           </div>
         </div>
       </div>
       <div
-        className="from-accent-purple/20 border-accent-purple/20 floating-shard-delayed absolute top-12 -right-8 -z-10 h-24 w-24 rotate-[15deg] transform rounded-xl border bg-gradient-to-br to-transparent backdrop-blur-md"
+        className="from-accent-purple/20 border-accent-purple/20 floating-shard-delayed absolute top-12 -right-8 -z-10 h-24 w-24 rotate-15 transform rounded-xl border bg-linear-to-br to-transparent backdrop-blur-md"
       ></div>
       <div
-        className="from-accent-cyan/20 border-accent-cyan/20 floating-shard absolute bottom-16 -left-6 -z-10 h-16 w-16 -rotate-[10deg] transform rounded-lg border bg-gradient-to-tl to-transparent backdrop-blur-md"
-      ></div>
-      <div
-        className="pointer-events-none absolute top-1/4 right-0 z-0 h-[1px] w-[120%] -rotate-12 transform bg-gradient-to-r from-transparent via-white/5 to-transparent"
+        className="from-accent-cyan/20 border-accent-cyan/20 floating-shard absolute bottom-16 -left-6 -z-10 h-16 w-16 -rotate-10 transform rounded-lg border bg-linear-to-tl to-transparent backdrop-blur-md"
       ></div>
     </div>
   )

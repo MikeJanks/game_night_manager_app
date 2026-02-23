@@ -1,8 +1,5 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import '@fontsource-variable/manrope'
-import '@fontsource-variable/inter'
-import '@fontsource/material-symbols-outlined'
 import App from './App.jsx'
 import './index.css'
 

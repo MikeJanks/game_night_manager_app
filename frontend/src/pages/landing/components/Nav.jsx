@@ -12,7 +12,7 @@ const Nav = () => {
           <div
             className="from-primary to-accent-purple shadow-primary/20 flex size-8 items-center justify-center rounded-lg bg-gradient-to-br text-white shadow-lg"
           >
-            <span className="material-symbols-outlined text-xl">casino</span>
+            <span className="font-material-symbols text-xl">casino</span>
           </div>
           <span className="text-xl font-extrabold tracking-tight text-white"
             >Game Night</span

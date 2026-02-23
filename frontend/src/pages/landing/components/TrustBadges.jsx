@@ -11,7 +11,7 @@ const TrustBadges = () => {
       <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-2 opacity-60">
         {badges.map(({ icon, label }) => (
           <div key={label} className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[12px] text-slate-500">
+            <span className="font-material-symbols text-[12px] text-slate-500">
               {icon}
             </span>
             <span className="text-[10px] font-medium tracking-[0.15em] text-slate-500 uppercase">
