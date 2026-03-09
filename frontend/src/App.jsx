@@ -10,7 +10,8 @@ const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
+        <div className="h-dvh w-full font-body antialiased bg-dark-base text-slate-200">
+          <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/" element={<LandingPage />} />
@@ -23,7 +24,8 @@ const App = () => {
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+          </Routes>
+        </div>
       </AuthProvider>
     </BrowserRouter>
   )
