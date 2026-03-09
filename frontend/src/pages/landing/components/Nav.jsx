@@ -10,7 +10,7 @@ const Nav = () => {
           className="flex cursor-pointer items-center gap-3 transition-opacity hover:opacity-80"
         >
           <div
-            className="from-primary to-accent-purple shadow-primary/20 flex size-8 items-center justify-center rounded-lg bg-gradient-to-br text-white shadow-lg"
+            className="from-primary to-accent-purple shadow-primary/20 flex size-8 items-center justify-center rounded-lg bg-linear-to-br text-white shadow-lg"
           >
             <span className="font-material-symbols text-xl">casino</span>
           </div>
