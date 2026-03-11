@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Game Night Chat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Inter:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f42559",
+                        "background-light": "#f8f5f6",
+                        "background-dark": "#0a0a0c",
+                        "surface": "#131316",
+                        "bubble-bot": "#1e1e22",
+                        "border-muted": "rgba(255,255,255,0.06)",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "body": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<div class="relative flex h-screen w-full flex-col overflow-hidden">
+<!-- Header -->
+<header class="flex items-center justify-between border-b border-border-muted bg-surface px-6 py-4 lg:px-10">
+<div class="flex items-center gap-3">
+<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-2xl">sports_esports</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">Chat</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-bold text-white transition-opacity hover:opacity-90">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>New chat</span>
+</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-lg bg-border-muted text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Chat Area -->
+<main class="flex flex-1 flex-col overflow-y-auto bg-background-dark scroll-smooth px-4 py-6 md:px-0">
+<div class="mx-auto flex w-full max-w-3xl flex-col gap-8">
+<!-- Date Separator -->
+<div class="flex items-center justify-center py-2">
+<span class="text-xs font-medium uppercase tracking-widest text-slate-500">Today</span>
+</div>
+<!-- Message: Bot -->
+<div class="flex items-start gap-4">
+<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface border border-border-muted">
+<span class="material-symbols-outlined text-primary text-xl">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1.5 max-w-[80%] md:max-w-[70%]">
+<span class="text-[13px] font-medium text-slate-500 ml-1">Game Night Bot</span>
+<div class="rounded-2xl rounded-tl-none bg-bubble-bot px-5 py-3.5 border border-border-muted">
+<p class="font-body text-[15px] leading-relaxed text-slate-200">
+                            Ready to schedule our next DnD session? I see everyone is active in the group.
+                        </p>
+</div>
+</div>
+</div>
+<!-- Message: User -->
+<div class="flex flex-row-reverse items-start gap-4">
+<div class="h-10 w-10 shrink-0 rounded-full bg-gradient-to-tr from-slate-700 to-slate-500 border border-border-muted overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Portrait of a young male gamer" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB0dq7oBe7M5-HNLrlBqz3SmO7-T06NmRv53PP51Ck6ZpthIV1zXvatq1JpQ5jSiyjCfUzkdtK6irrecZKX57Dol2JUuiUUSQV8YaM9yutKcUPqsoEVMoejfCo3v2tD2gynmXwCsJXOgWxYxNhSXFr7gWN9VmpooiRqH6SDgzwqIJWNJzHSM6cdwiTl6uCqOYtXtCW0BxMlIt0JvuvW23v_Ma_JO6cozDL85KD_OnaHttXwLsm4zySSkePfZ-y64rQUG8MF-QzMgro')"></div>
+</div>
+<div class="flex flex-col items-end gap-1.5 max-w-[80%] md:max-w-[70%]">
+<span class="text-[13px] font-medium text-slate-500 mr-1 text-right">You</span>
+<div class="rounded-2xl rounded-tr-none bg-surface px-5 py-3.5 border border-white/10">
+<p class="font-body text-[15px] leading-relaxed text-slate-200">
+                            How does Friday at 7 PM work for everyone?
+                        </p>
+</div>
+</div>
+</div>
+<!-- Message: Bot -->
+<div class="flex items-start gap-4">
+<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface border border-border-muted">
+<span class="material-symbols-outlined text-primary text-xl">smart_toy</span>
+</div>
+<div class="flex flex-col gap-1.5 max-w-[80%] md:max-w-[70%]">
+<span class="text-[13px] font-medium text-slate-500 ml-1">Game Night Bot</span>
+<div class="rounded-2xl rounded-tl-none bg-bubble-bot px-5 py-3.5 border border-border-muted">
+<p class="font-body text-[15px] leading-relaxed text-slate-200">
+                            I've checked the group's availability. Friday at 7 PM looks perfect for all 5 players. Should I add it to the shared calendar and send the invites?
+                        </p>
+</div>
+</div>
+</div>
+<!-- Message: User -->
+<div class="flex flex-row-reverse items-start gap-4">
+<div class="h-10 w-10 shrink-0 rounded-full bg-gradient-to-tr from-slate-700 to-slate-500 border border-border-muted overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Portrait of a young male gamer" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD8G-ZVPxXeRXj1JaiUSIpa5ypyO1Vcy4YgMVh8b2nCu8lGwqNYTkzVMHvQF2eEJ7qfXqL_RJemU31850g172NIM-hfsUw7onsTQoosF_qRPYc5mNtBwnizBBq2kJCfoEV2cNd7f-5n6h7eht3iL0D1QFiL2JTBIsgSZRF1l8zt0VeDcIdJJyXmambuVIq1mzXn1C0pLwnIcVEkO4Id4-GjKSzqFuSjhAMZBaYBnAVkmsOGfrirNkZUT5BTOzp2LpiaPh3UpkGtBf0')"></div>
+</div>
+<div class="flex flex-col items-end gap-1.5 max-w-[80%] md:max-w-[70%]">
+<span class="text-[13px] font-medium text-slate-500 mr-1 text-right">You</span>
+<div class="rounded-2xl rounded-tr-none bg-surface px-5 py-3.5 border border-white/10">
+<p class="font-body text-[15px] leading-relaxed text-slate-200">
+                            Yes, please! Let's get that campaign started. I've been waiting all week.
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Input Bar -->
+<footer class="bg-background-dark px-6 pb-8 pt-2">
+<div class="mx-auto flex w-full max-w-3xl items-center gap-3">
+<div class="flex flex-1 items-center gap-3 rounded-xl border border-border-muted bg-surface px-4 py-2 focus-within:border-white/20 transition-colors">
+<button class="flex h-8 w-8 items-center justify-center text-slate-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<input class="h-10 w-full bg-transparent border-none font-body text-[15px] text-slate-100 focus:ring-0 placeholder:text-slate-600" placeholder="Type a message..." type="text"/>
+<div class="flex items-center gap-1">
+<button class="flex h-8 w-8 items-center justify-center text-slate-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined">sentiment_satisfied</span>
+</button>
+</div>
+</div>
+<button class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+<p class="mt-4 text-center text-[11px] text-slate-600 uppercase tracking-widest font-semibold">
+            Powered by DnD Scheduler Assistant
+        </p>
+</footer>
+</div>
+</body></html>

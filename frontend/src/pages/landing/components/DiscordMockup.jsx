@@ -4,7 +4,7 @@ const DiscordMockup = () => {
       className="perspective-[1000px] relative z-0 flex h-[500px] w-full items-center justify-center lg:ml-12"
     >
       <div
-        className="glass-panel transform-3d transform-[rotateY(-10deg)_rotateX(5deg)] relative z-20 flex w-[400px] flex-col overflow-hidden rounded-xl shadow-2xl"
+        className="bg-white/3 backdrop-blur-md border border-white/8 transform-3d transform-[rotateY(-10deg)_rotateX(5deg)] relative z-20 flex w-[400px] flex-col overflow-hidden rounded-xl shadow-2xl"
       >
         <div
           className="flex items-center justify-between border-b border-white/5 bg-black/20 p-3"
@@ -130,25 +130,22 @@ const DiscordMockup = () => {
             </div>
           </div>
         </div>
-        <div
-          className="m-2 flex items-center gap-3 rounded-lg border-t border-white/5 bg-black/10 p-3"
-        >
-          <div
-            className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-500"
-          >
-            <span
-              className="font-material-symbols text-[14px] font-bold text-black"
-              >add</span
-            >
+        <div className="m-2 flex items-center gap-3 rounded-lg border-t border-white/5 bg-black/10 p-3">
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-500">
+            <span className="font-material-symbols text-[14px] font-bold text-black">
+              add
+            </span>
           </div>
           <div className="flex-1 text-xs font-medium text-slate-500">
             Message #scheduling
           </div>
           <div className="flex gap-2 text-slate-400">
-            <span className="font-material-symbols text-lg">gif_box</span>
-            <span className="font-material-symbols text-lg"
-              >sentiment_satisfied</span
-            >
+            <span className="font-material-symbols text-lg">
+              gif_box
+            </span>
+            <span className="font-material-symbols text-lg">
+              sentiment_satisfied
+            </span>
           </div>
         </div>
       </div>
