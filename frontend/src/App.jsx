@@ -5,22 +5,27 @@ import Login from './components/Login'
 import Signup from './components/Signup'
 import Chat from './components/Chat'
 import LandingPage from './pages/landing/LandingPage'
+import ChatPageV2 from './pages/chat/ChatPageV2'
 
 const App = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="h-dvh w-full font-body antialiased bg-dark-base text-slate-200">
+        <div className="h-dvh w-full font-body antialiased bg-canvas">
           <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/chat" element={
-            <ProtectedRoute>
-              <Chat />
-            </ProtectedRoute>
-          }/>
-          <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/v2/chat" element={ <ChatPageV2 /> } />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
       </AuthProvider>

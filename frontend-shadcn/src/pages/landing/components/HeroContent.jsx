@@ -26,11 +26,11 @@ const HeroContent = () => {
         </div>
       </div>
       <h1
-        className="text-5xl leading-[1] font-bold tracking-tight text-white md:text-7xl"
+        className="text-5xl leading-none font-bold tracking-tight text-white md:text-7xl"
       >
         Stop planning. <br />
         <span
-          className="bg-gradient-to-r from-slate-200 via-white to-slate-400 bg-clip-text text-transparent"
+          className="bg-linear-to-r from-slate-200 via-white to-slate-400 bg-clip-text text-transparent"
           >Start playing.</span
         >
       </h1>
@@ -53,7 +53,7 @@ const HeroContent = () => {
           </span>
         </button>
         <button
-          className="flex h-12 items-center justify-center gap-2 rounded-lg border border-white/5 bg-dark-surface px-8 text-base font-semibold text-white transition-all hover:bg-white/10"
+          className="flex h-12 items-center justify-center gap-2 rounded-lg border border-white/5 bg-card px-8 text-base font-semibold text-white transition-all hover:bg-white/10"
         >
           Try the Web Chat
         </button>
