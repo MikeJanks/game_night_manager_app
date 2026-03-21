@@ -11,8 +11,7 @@ const ChatEmptyState = () => {
 
       <h2 className="mb-3 text-3xl font-bold tracking-tight">What's the plan?</h2>
       <p className="mb-10 max-w-sm text-base leading-relaxed">
-        Start a conversation with your group or pick a suggestion below to get
-        things moving.
+        Plan games. Check the schedule. Loop in players.
       </p>
 
       <div className="flex flex-wrap justify-center gap-3">
@@ -20,21 +19,21 @@ const ChatEmptyState = () => {
           <span className="font-material-symbols text-lg">
             calendar_today
           </span>
-          Schedule RPG
+          Show upcoming events
         </Button>
 
         <Button type="button" variant="secondary" className="gap-2">
           <span className="font-material-symbols text-lg">
             casino
           </span>
-          Board Game Night
+          Create a game night
         </Button>
 
         <Button type="button" variant="secondary" className="gap-2">
           <span className="font-material-symbols text-lg">
-            person_add
+            group_add
           </span>
-          Invite Players
+          Invite the group
         </Button>
       </div>
     </div>
