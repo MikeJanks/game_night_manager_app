@@ -17,7 +17,7 @@ const Nav = () => {
             Log in
           </button>
           <button type="button" className="text-background flex h-9 cursor-pointer items-center justify-center rounded-lg bg-white px-5 text-sm font-bold transition-all hover:bg-slate-200">
-            Get Started
+            Sign up
           </button>
         </div>
       </div>

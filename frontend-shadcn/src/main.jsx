@@ -5,6 +5,7 @@ import "./index.css"
 
 import LandingPage from "./pages/landing/LandingPage"
 import ChatPage from "./pages/chat/ChatPage"
+import LoginPage from "./pages/login/LoginPage"
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/chat" element={<ChatPage />} />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </div>
     </BrowserRouter>
