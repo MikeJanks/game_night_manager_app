@@ -1,5 +1,4 @@
-"use client";;
-import { Eye, EyeOff, Github, Loader2, Lock, Mail, User } from "lucide-react";
+"use client";import { Eye, EyeOff, Github, Loader2, Lock, Mail, User } from "lucide-react";
 import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -7,10 +6,10 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Field,
   FieldContent,
@@ -44,12 +43,12 @@ const DEFAULT_SOCIAL_PROVIDERS = [
   { id: "github", name: "GitHub", icon: Github },
 ];
 
-function validateName(value) {
+function validateUsername(value) {
   if (!value.trim()) {
-    return "Name is required";
+    return "Username is required";
   }
   if (value.trim().length < 2) {
-    return "Name must be at least 2 characters";
+    return "Username must be at least 2 characters";
   }
   return;
 }
@@ -147,7 +146,7 @@ function EmailSeparator() {
   );
 }
 
-function NameField({
+function UsernameField({
   id,
   value,
   onChange,
@@ -156,7 +155,7 @@ function NameField({
   return (
     <Field data-invalid={!!error}>
       <FieldLabel htmlFor={id}>
-        Full name
+        Username
         <span aria-label="required" className="text-destructive">
           *
         </span>
@@ -169,11 +168,11 @@ function NameField({
           <InputGroupInput
             aria-describedby={error ? `${id}-error` : undefined}
             aria-invalid={!!error}
-            autoComplete="name"
+            autoComplete="username"
             id={id}
-            name="name"
+            name="username"
             onChange={onChange}
-            placeholder="John Doe…"
+            placeholder="johndoe82"
             required
             type="text"
             value={value} />
@@ -333,51 +332,6 @@ function ConfirmPasswordField({
   );
 }
 
-function TermsCheckbox({
-  acceptTerms,
-  error,
-  onAcceptTermsChange,
-  privacyUrl,
-  termsUrl
-}) {
-  return (
-    <Field data-invalid={!!error}>
-      <FieldContent className="flex flex-col">
-        <div className="flex items-start gap-2">
-          <Checkbox
-            checked={acceptTerms}
-            id="accept-terms"
-            onCheckedChange={(checked) => onAcceptTermsChange(checked === true)} />
-          <label
-            className="cursor-pointer text-sm leading-relaxed peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            htmlFor="accept-terms">
-            I agree to the{" "}
-            <a
-              className="rounded-sm text-primary underline underline-offset-4 hover:text-primary/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              href={termsUrl}
-              rel="noopener noreferrer"
-              target="_blank">
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a
-              className="rounded-sm text-primary underline underline-offset-4 hover:text-primary/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              href={privacyUrl}
-              rel="noopener noreferrer"
-              target="_blank">
-              Privacy Policy
-            </a>
-            <span aria-label="required" className="text-destructive">
-              *
-            </span>
-          </label>
-        </div>
-        {error && <FieldError>{error}</FieldError>}
-      </FieldContent>
-    </Field>
-  );
-}
-
 export default function AuthSignupForm({
   onSubmit,
   onSocialLogin,
@@ -386,14 +340,12 @@ export default function AuthSignupForm({
   className,
   isLoading = false,
   errors,
-  termsUrl = "#",
-  privacyUrl = "#"
+  footer,
 }) {
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [acceptTerms, setAcceptTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [localErrors, setLocalErrors] = useState({});
@@ -401,46 +353,42 @@ export default function AuthSignupForm({
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
 
-    const nameError = validateName(name);
+    const usernameError = validateUsername(username);
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
     const confirmPasswordError = validateConfirmPassword(confirmPassword, password);
-    const termsError = acceptTerms ? undefined : "You must accept the terms";
 
     if (
-      nameError ||
+      usernameError ||
       emailError ||
       passwordError ||
-      confirmPasswordError ||
-      termsError
+      confirmPasswordError
     ) {
       setLocalErrors({
-        name: nameError,
+        username: usernameError,
         email: emailError,
         password: passwordError,
         confirmPassword: confirmPasswordError,
-        terms: termsError,
       });
       return;
     }
 
     setLocalErrors({});
     onSubmit?.({
-      name: name.trim(),
+      username: username.trim(),
       email: email.trim(),
       password,
       confirmPassword,
-      acceptTerms,
     });
-  }, [name, email, password, confirmPassword, acceptTerms, onSubmit]);
+  }, [username, email, password, confirmPassword, onSubmit]);
 
-  const handleNameChange = useCallback((e) => {
+  const handleUsernameChange = useCallback((e) => {
     const value = e.target.value;
-    setName(value);
-    if (localErrors.name) {
-      setLocalErrors((prev) => ({ ...prev, name: validateName(value) }));
+    setUsername(value);
+    if (localErrors.username) {
+      setLocalErrors((prev) => ({ ...prev, username: validateUsername(value) }));
     }
-  }, [localErrors.name]);
+  }, [localErrors.username]);
 
   const handleEmailChange = useCallback((e) => {
     const value = e.target.value;
@@ -486,16 +434,11 @@ export default function AuthSignupForm({
     setShowConfirmPassword((prev) => !prev);
   }, []);
 
-  const handleAcceptTermsChange = useCallback((checked) => {
-    setAcceptTerms(checked);
-  }, []);
-
-  const nameError = errors?.name || localErrors.name;
+  const usernameError = errors?.username || localErrors.username;
   const emailError = errors?.email || localErrors.email;
   const passwordError = errors?.password || localErrors.password;
   const confirmPasswordError =
     errors?.confirmPassword || localErrors.confirmPassword;
-  const termsError = errors?.terms || localErrors.terms;
   const generalError = errors?.general;
 
   return (
@@ -516,11 +459,11 @@ export default function AuthSignupForm({
           )}
 
           <div className="flex flex-col gap-4">
-            <NameField
-              error={nameError}
-              id="signup-name"
-              onChange={handleNameChange}
-              value={name} />
+            <UsernameField
+              error={usernameError}
+              id="signup-username"
+              onChange={handleUsernameChange}
+              value={username} />
 
             <EmailField
               error={emailError}
@@ -543,13 +486,6 @@ export default function AuthSignupForm({
               onTogglePassword={handleToggleConfirmPassword}
               showPassword={showConfirmPassword}
               value={confirmPassword} />
-
-            <TermsCheckbox
-              acceptTerms={acceptTerms}
-              error={termsError}
-              onAcceptTermsChange={handleAcceptTermsChange}
-              privacyUrl={privacyUrl}
-              termsUrl={termsUrl} />
           </div>
 
           <Button
@@ -569,6 +505,11 @@ export default function AuthSignupForm({
           </Button>
         </form>
       </CardContent>
+      {footer != null ? (
+        <CardFooter className="flex flex-col items-center border-t border-border pt-6 text-center text-sm text-muted-foreground">
+          {footer}
+        </CardFooter>
+      ) : null}
     </Card>
   );
 }

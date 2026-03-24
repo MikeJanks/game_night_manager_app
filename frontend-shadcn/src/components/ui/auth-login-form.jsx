@@ -7,6 +7,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -237,7 +238,8 @@ export default function AuthLoginForm({
   className,
   defaultEmail = "",
   isLoading = false,
-  errors
+  errors,
+  footer,
 }) {
   const [email, setEmail] = useState(defaultEmail);
   const [password, setPassword] = useState("");
@@ -357,6 +359,11 @@ export default function AuthLoginForm({
           </Button>
         </form>
       </CardContent>
+      {footer != null ? (
+        <CardFooter className="flex flex-col items-center border-t border-border pt-6 text-center text-sm text-muted-foreground">
+          {footer}
+        </CardFooter>
+      ) : null}
     </Card>
   );
 }

@@ -170,6 +170,19 @@ h1, h2, h3, h4, h5, h6 {
   @apply font-display;
 }
 
+/* Autofill: override browser default (Chrome, Edge, Safari) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--foreground);
+  caret-color: var(--foreground);
+  /* “Fake” background; autofill often ignores background-color alone */
+  box-shadow: 0 0 0 1000px var(--card) inset !important;
+  /* Optional: reduces flash when Chrome reapplies autofill styles */
+  transition: background-color 99999s ease-out 0s;
+}
+
 /* Animations (landing) */
 @keyframes float {
   0% { transform: translateY(0px) rotate(0deg); }

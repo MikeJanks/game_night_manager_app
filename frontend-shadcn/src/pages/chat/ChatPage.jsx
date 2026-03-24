@@ -34,7 +34,7 @@ function ChatPage() {
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-background text-foreground">
       <AmbientBlobBackground />
 
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+      <div className="relative flex h-full flex-1 flex-col">
         <ChatHeader />
         <ChatMain
           messages={messages}

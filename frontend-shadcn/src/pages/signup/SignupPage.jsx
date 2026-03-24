@@ -3,21 +3,21 @@ import { Link, useNavigate } from "react-router-dom"
 import AmbientBlobBackground from "@/components/AmbientBlobBackground"
 import AppPageHeader from "@/components/AppPageHeader"
 import { Button } from "@/components/ui/button"
-import AuthLoginForm from "@/components/ui/auth-login-form"
+import AuthSignupForm from "@/components/ui/auth-signup-form"
 import login from "@/apis/login"
+import signup from "@/apis/signup"
 
-
-function LoginPage() {
+function SignupPage() {
   const navigate = useNavigate()
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
-  
+
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-background text-foreground">
       <AmbientBlobBackground />
 
       <div className="relative z-10 flex min-h-0 flex-1 flex-col">
-        <AppPageHeader title="Log in" icon="login">
+        <AppPageHeader title="Sign up" icon="person_add">
           <Button
             variant="outline"
             size="sm"
@@ -29,36 +29,41 @@ function LoginPage() {
         </AppPageHeader>
 
         <main className="flex h-full flex-1 flex-col items-center-safe justify-center-safe overflow-y-auto px-6 p-8">
-          <AuthLoginForm
+          <AuthSignupForm
             onSubmit={async (data) => {
               setErrors({})
               setIsLoading(true)
               try {
-                const {access_token} = await login({
-                  username: data.email,
-                  password: data.password
+                await signup({
+                  username: data.username,
+                  email: data.email,
+                  password: data.password,
                 })
-                localStorage.setItem("access_token", access_token);
+                const { access_token } = await login({
+                  username: data.email,
+                  password: data.password,
+                })
+                localStorage.setItem("access_token", access_token)
                 navigate("/chat", { replace: true })
               } catch (e) {
-                // console.log(e)
-                setErrors({ general: e instanceof Error ? e.message : "Something went wrong" })
+                setErrors({
+                  general: e instanceof Error ? e.message : "Something went wrong",
+                })
               } finally {
                 setIsLoading(false)
               }
             }}
             errors={errors}
             isLoading={isLoading}
-            showRememberMe={false}
             showSocialLogin={false}
             footer={
               <p>
-                Don&apos;t have an account?{" "}
+                Already have an account?{" "}
                 <Link
-                  to="/signup"
+                  to="/login"
                   className="text-primary font-medium underline-offset-4 hover:underline"
                 >
-                  Sign up
+                  Log in
                 </Link>
               </p>
             }
@@ -69,4 +74,4 @@ function LoginPage() {
   )
 }
 
-export default LoginPage
+export default SignupPage

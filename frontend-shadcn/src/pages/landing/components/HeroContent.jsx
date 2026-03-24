@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import TrustBadges from './TrustBadges'
 
 const HeroContent = () => {
@@ -39,7 +40,9 @@ const HeroContent = () => {
         end the endless "wait what time?"
       </p>
       <div className="flex flex-col gap-4 pt-4 sm:flex-row">
+        {/* Replace with Discord OAuth invite URL when available */}
         <button
+          type="button"
           className="group bg-primary relative flex h-12 items-center justify-center gap-2 overflow-hidden rounded-lg px-8 text-base font-semibold text-white transition-all hover:shadow-[0_0_20px_rgba(244,37,89,0.4)]"
         >
           <div
@@ -52,11 +55,12 @@ const HeroContent = () => {
             >
           </span>
         </button>
-        <button
+        <Link
+          to="/chat"
           className="flex h-12 items-center justify-center gap-2 rounded-lg border border-white/5 bg-card px-8 text-base font-semibold text-white transition-all hover:bg-white/10"
         >
           Try the Web Chat
-        </button>
+        </Link>
       </div>
       <TrustBadges />
     </div>
