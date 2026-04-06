@@ -1,49 +1,37 @@
-import Button from '../../../components/Button'
-import IconButton from '../../../components/IconButton'
-import Avatar from '../../../components/Avatar'
+import AppPageHeader from "@/components/AppPageHeader"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 const ChatHeader = () => {
   return (
-    <header className="flex items-center justify-between w-full border-b border-muted px-6 md:px-12 py-4 bg-surface">
-      <div className="flex items-center gap-3">
-        <IconButton
-          variant="surface"
-          size="md"
-        >
-          <span className="font-material-symbols text-primary text-2xl">forum</span>
-        </IconButton>
-        <h1 className="text-lg font-bold leading-tight tracking-tight">
-          Chat
-        </h1>
-      </div>
+    <AppPageHeader title="Chat" icon="forum">
+      {/* New chat (desktop) */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="hidden md:inline-flex px-4 py-2 text-sm font-medium border-border bg-card hover:bg-muted"
+      >
+        New chat
+      </Button>
 
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="md"
-          className="hidden md:inline-flex px-4 py-2 text-sm font-medium"
-        >
-          New chat
-        </Button>
+      {/* New chat (mobile icon only) */}
+      <Button
+        variant="outline"
+        size="icon"
+        className="md:hidden h-10 w-10 border-border bg-card hover:bg-card/80"
+        aria-label="New chat"
+      >
+        <span className="font-material-symbols text-xl">add</span>
+      </Button>
 
-        <IconButton
-          variant="surface"
-          size="md"
-          className="md:hidden"
-          aria-label="New chat"
-        >
-          <span className="font-material-symbols text-2xl">add</span>
-        </IconButton>
-
-        <Avatar
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPDTnSHxAftCX1b42I9Oe6LGnuwuNOSisiIklwoCT1s2XlaEvCavfcuislOzzP9wqA-ecu479N0EHVy0_qPMus_nNhGUeU8RdXaEhkAA5zzDAmvqQA6zIU34pReXgWcQ7ptKr2xVlj8FI7YZPdIlcZBxVtmDrFjWz6u5XiVhOOAlRzgUvWrCaVMcHl82ADrlard9wmdyJOKCHpGeV2WP3us_v6FKzY6zYXRxWoU61sZf4-kmrhKLcY5MDgT5pRjnQt9st4Zt8rvUI"
-          alt="User avatar"
-          status="online"
-        />
-      </div>
-    </header>
+      {/* Avatar */}
+      <Avatar className="h-10 w-10 border border-border bg-card">
+        <AvatarFallback className="bg-transparent text-primary">
+          <span className="font-material-symbols text-primary text-xl">person</span>
+        </AvatarFallback>
+      </Avatar>
+    </AppPageHeader>
   )
 }
 
 export default ChatHeader
-

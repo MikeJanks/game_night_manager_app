@@ -6,7 +6,7 @@ import Footer from './components/Footer'
 
 const LandingPage = () => {
   return (
-    <div className="bg-background overflow-x-hidden text-slate-200">
+    <div className="bg-dark-base overflow-x-hidden text-slate-200">
       <Nav />
       <Hero />
       <FeaturesSection />

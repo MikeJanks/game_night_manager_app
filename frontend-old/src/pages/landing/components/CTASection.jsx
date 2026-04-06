@@ -1,9 +1,7 @@
-import { Link } from "react-router-dom"
-
 const CTASection = () => {
   return (
     <section
-      className="bg-background relative overflow-hidden border-t border-white/5 px-6 py-20 text-center"
+      className="bg-dark-base relative overflow-hidden border-t border-white/5 px-6 py-20 text-center"
     >
       <div
         className="bg-primary/10 pointer-events-none absolute top-1/2 left-1/2 h-[400px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[100px]"
@@ -19,20 +17,17 @@ const CTASection = () => {
           and run it.
         </p>
         <div className="flex w-full flex-col justify-center gap-4 sm:flex-row">
-          {/* Replace with Discord OAuth invite URL when available */}
           <button
-            type="button"
-            className="text-background flex h-14 items-center justify-center gap-2 rounded-lg bg-white px-10 text-lg font-bold transition-all hover:scale-105 hover:bg-slate-200"
+            className="text-dark-base flex h-14 items-center justify-center gap-2 rounded-lg bg-white px-10 text-lg font-bold transition-all hover:scale-105 hover:bg-slate-200"
           >
             Add to Discord
             <span className="font-material-symbols">arrow_forward</span>
           </button>
-          <Link
-            to="/chat"
+          <button
             className="flex h-14 items-center justify-center gap-2 rounded-lg border border-white/20 bg-transparent px-10 text-lg font-bold text-white transition-all hover:scale-105 hover:bg-white/5"
           >
             Try the Web Chat
-          </Link>
+          </button>
         </div>
       </div>
     </section>

@@ -1,49 +1,46 @@
-import { useState } from 'react'
-import { twMerge } from 'tailwind-merge'
-import ChatEmptyState from './ChatEmptyState'
-import ChatMessage from './ChatMessage'
+import { ScrollArea } from "@/components/ui/scroll-area"
+import ChatEmptyState from "./ChatEmptyState"
+import ChatMessage from "./ChatMessage"
+import { AvatarFallback } from "@/components/ui/avatar"
 
-const ChatMain = () => {
-const [messages, setMessages] = useState([
-  {
-    role: "user",
-    senderLabel: "Mike",
-    content: "Is this message longer than 30 characters."
-  },
-  {
-    role: "bot",
-    senderLabel: "Game Night Manager",
-    content: "I dont think that message is longer than 30 characters"
-  },
-  {
-    role: "user",
-    senderLabel: "Mike",
-    content: "Is this message longer than 30 characters. Is this message longer than 30 characters. Is this message longer than 30 characters"
-  },
-  {
-    role: "user",
-    senderLabel: "Mike",
-    content: "Is this message longer than 30 characters. Is this message longer than 30 characters. Is this message longer than 30 characters"
-  },
-  {
-    role: "bot",
-    senderLabel: "Game Night Manager",
-    content: "I dont think that message is longer than 30 characters. I dont think that message is longer than 30 characters. I dont think that message is longer than 30 characters"
-  }
-])
+const ChatMain = ({ messages = [], username }) => {
+  const hasMessages = messages.length > 0
+
+  const botAvatar = (
+    <AvatarFallback className="bg-transparent text-primary">
+      <span className="font-material-symbols text-primary text-xl">smart_toy</span>
+    </AvatarFallback>
+  )
+  const personAvatar = (
+    <AvatarFallback className="bg-transparent text-primary">
+      <span className="font-material-symbols text-primary text-xl">person</span>
+    </AvatarFallback>
+  )
 
   return (
-    <main className="flex-1 flex flex-col gap-8 overflow-y-auto py-8">
-      {
-        !messages?.length > 0
-          ? <ChatEmptyState />
-          : messages.map(({role, senderLabel, content}, i) =>
-            <div key={i} className={twMerge(`w-full`, `${role==="user" ? "self-end" : "self-start"}`)}>
-              <ChatMessage role={role} senderLabel={senderLabel} content={content}/>
-            </div>
-          )
-      }
-    </main>
+    <ScrollArea className="flex-1 min-h-0">
+      <main className="flex flex-col items-center w-full px-3 py-3">
+        <div className="flex flex-col w-full max-w-3xl gap-8">
+          {!hasMessages ? (
+            <ChatEmptyState />
+          ) : (
+            messages.map((m, idx) => (
+              <ChatMessage
+                key={idx}
+                side={m.type === "human" ? "right" : "left"}
+                senderLabel={m.type === "human" ? username : "Game Night Manager"}
+                content={m.content}
+                markdown={m.type === "ai"}
+                avatar={m.type === "ai"
+                  ? botAvatar
+                  : personAvatar
+                }
+              />
+            ))
+          )}
+        </div>
+      </main>
+    </ScrollArea>
   )
 }
 

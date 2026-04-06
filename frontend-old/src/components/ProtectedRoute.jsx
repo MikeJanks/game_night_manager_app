@@ -1,13 +1,16 @@
 import { Navigate } from 'react-router-dom'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '../contexts/AuthContext'
+import './Auth.css'
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth()
 
   if (isLoading) {
     return (
-      <div className="flex h-dvh items-center justify-center text-muted-foreground">
-        Loading...
+      <div className="auth-container">
+        <div className="auth-card">
+          <div style={{ textAlign: 'center', color: '#a0a0a0' }}>Loading...</div>
+        </div>
       </div>
     )
   }
@@ -20,3 +23,4 @@ const ProtectedRoute = ({ children }) => {
 }
 
 export default ProtectedRoute
+

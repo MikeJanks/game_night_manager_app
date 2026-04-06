@@ -34,7 +34,7 @@ const DiscordMockup = () => {
           </div>
         </div>
         <div
-          className="flex flex-1 flex-col justify-end space-y-4 bg-gradient-to-b from-transparent to-black/10 p-4"
+          className="flex flex-1 flex-col justify-end space-y-4 bg-linear-to-b from-transparent to-black/10 p-4"
         >
           <div className="group flex gap-3">
             <div
@@ -59,7 +59,7 @@ const DiscordMockup = () => {
           </div>
           <div className="mt-1 flex gap-3">
             <div
-              className="from-primary to-accent-purple shadow-primary/20 mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br shadow-lg"
+              className="from-primary to-accent-purple shadow-primary/20 mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br shadow-lg"
             >
               <span className="font-material-symbols text-sm text-white"
                 >smart_toy</span
@@ -150,10 +150,10 @@ const DiscordMockup = () => {
         </div>
       </div>
       <div
-        className="from-accent-purple/20 border-accent-purple/20 floating-shard-delayed absolute top-12 -right-8 -z-10 h-24 w-24 rotate-15 transform rounded-xl border bg-gradient-to-br to-transparent backdrop-blur-md"
+        className="from-accent-purple/20 border-accent-purple/20 floating-shard-delayed absolute top-12 -right-8 -z-10 h-24 w-24 rotate-15 transform rounded-xl border bg-linear-to-br to-transparent backdrop-blur-md"
       ></div>
       <div
-        className="from-accent-cyan/20 border-accent-cyan/20 floating-shard absolute bottom-16 -left-6 -z-10 h-16 w-16 -rotate-10 transform rounded-lg border bg-gradient-to-tl to-transparent backdrop-blur-md"
+        className="from-accent-cyan/20 border-accent-cyan/20 floating-shard absolute bottom-16 -left-6 -z-10 h-16 w-16 -rotate-10 transform rounded-lg border bg-linear-to-tl to-transparent backdrop-blur-md"
       ></div>
     </div>
   )

@@ -2,7 +2,7 @@ const FeatureCard = ({
   icon,
   title,
   description,
-  cardClassName = 'group bg-card hover:border-primary/30 rounded-2xl border border-white/5 p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.02]',
+  cardClassName = 'group bg-dark-surface hover:border-primary/30 rounded-2xl border border-white/5 p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.02]',
   iconClassName = 'bg-primary/10 text-primary flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-shadow group-hover:shadow-[0_0_15px_rgba(244,37,89,0.2)]',
 }) => {
   return (

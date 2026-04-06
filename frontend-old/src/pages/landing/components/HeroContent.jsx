@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom"
 import TrustBadges from './TrustBadges'
 
 const HeroContent = () => {
@@ -27,11 +26,11 @@ const HeroContent = () => {
         </div>
       </div>
       <h1
-        className="text-5xl leading-none font-bold tracking-tight text-white md:text-7xl"
+        className="text-5xl leading-[1] font-bold tracking-tight text-white md:text-7xl"
       >
         Stop planning. <br />
         <span
-          className="bg-linear-to-r from-slate-200 via-white to-slate-400 bg-clip-text text-transparent"
+          className="bg-gradient-to-r from-slate-200 via-white to-slate-400 bg-clip-text text-transparent"
           >Start playing.</span
         >
       </h1>
@@ -40,9 +39,7 @@ const HeroContent = () => {
         end the endless "wait what time?"
       </p>
       <div className="flex flex-col gap-4 pt-4 sm:flex-row">
-        {/* Replace with Discord OAuth invite URL when available */}
         <button
-          type="button"
           className="group bg-primary relative flex h-12 items-center justify-center gap-2 overflow-hidden rounded-lg px-8 text-base font-semibold text-white transition-all hover:shadow-[0_0_20px_rgba(244,37,89,0.4)]"
         >
           <div
@@ -55,12 +52,11 @@ const HeroContent = () => {
             >
           </span>
         </button>
-        <Link
-          to="/chat"
-          className="flex h-12 items-center justify-center gap-2 rounded-lg border border-white/5 bg-card px-8 text-base font-semibold text-white transition-all hover:bg-white/10"
+        <button
+          className="flex h-12 items-center justify-center gap-2 rounded-lg border border-white/5 bg-dark-surface px-8 text-base font-semibold text-white transition-all hover:bg-white/10"
         >
           Try the Web Chat
-        </Link>
+        </button>
       </div>
       <TrustBadges />
     </div>
