@@ -4,11 +4,11 @@ import AmbientBlobBackground from "@/components/AmbientBlobBackground"
 import AppPageHeader from "@/components/AppPageHeader"
 import { Button } from "@/components/ui/button"
 import AuthSignupForm from "@/components/ui/auth-signup-form"
-import login from "@/apis/login"
-import signup from "@/apis/signup"
+import { useAuth } from "@/contexts/AuthContext"
 
 function SignupPage() {
   const navigate = useNavigate()
+  const { signup } = useAuth()
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
 
@@ -34,16 +34,7 @@ function SignupPage() {
               setErrors({})
               setIsLoading(true)
               try {
-                await signup({
-                  username: data.username,
-                  email: data.email,
-                  password: data.password,
-                })
-                const { access_token } = await login({
-                  username: data.email,
-                  password: data.password,
-                })
-                localStorage.setItem("access_token", access_token)
+                await signup(data.username, data.email, data.password)
                 navigate("/chat", { replace: true })
               } catch (e) {
                 setErrors({

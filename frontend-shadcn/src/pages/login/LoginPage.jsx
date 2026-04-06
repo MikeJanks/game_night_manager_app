@@ -4,11 +4,12 @@ import AmbientBlobBackground from "@/components/AmbientBlobBackground"
 import AppPageHeader from "@/components/AppPageHeader"
 import { Button } from "@/components/ui/button"
 import AuthLoginForm from "@/components/ui/auth-login-form"
-import login from "@/apis/login"
+import { useAuth } from "@/contexts/AuthContext"
 
 
 function LoginPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   
@@ -34,14 +35,9 @@ function LoginPage() {
               setErrors({})
               setIsLoading(true)
               try {
-                const {access_token} = await login({
-                  username: data.email,
-                  password: data.password
-                })
-                localStorage.setItem("access_token", access_token);
+                await login(data.email, data.password)
                 navigate("/chat", { replace: true })
               } catch (e) {
-                // console.log(e)
                 setErrors({ general: e instanceof Error ? e.message : "Something went wrong" })
               } finally {
                 setIsLoading(false)

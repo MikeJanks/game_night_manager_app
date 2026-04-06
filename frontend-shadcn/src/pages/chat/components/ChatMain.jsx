@@ -3,7 +3,7 @@ import ChatEmptyState from "./ChatEmptyState"
 import ChatMessage from "./ChatMessage"
 import { AvatarFallback } from "@/components/ui/avatar"
 
-const ChatMain = ({ messages = [] }) => {
+const ChatMain = ({ messages = [], username }) => {
   const hasMessages = messages.length > 0
 
   const botAvatar = (
@@ -19,7 +19,7 @@ const ChatMain = ({ messages = [] }) => {
 
   return (
     <ScrollArea className="flex-1 min-h-0">
-      <main className="flex flex-col items-center w-full px-6 py-8">
+      <main className="flex flex-col items-center w-full px-3 py-3">
         <div className="flex flex-col w-full max-w-3xl gap-8">
           {!hasMessages ? (
             <ChatEmptyState />
@@ -27,10 +27,11 @@ const ChatMain = ({ messages = [] }) => {
             messages.map((m, idx) => (
               <ChatMessage
                 key={idx}
-                side={m.role === "user" ? "right" : "left"}
-                senderLabel={m.senderLabel}
+                side={m.type === "human" ? "right" : "left"}
+                senderLabel={m.type === "human" ? username : "Game Night Manager"}
                 content={m.content}
-                avatar={m.role === "bot"
+                markdown={m.type === "ai"}
+                avatar={m.type === "ai"
                   ? botAvatar
                   : personAvatar
                 }

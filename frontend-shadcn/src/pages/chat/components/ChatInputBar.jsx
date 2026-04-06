@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
-function ChatInputBar({value, onChange, onSend, placeholder = "Type a message...",}) {
+function ChatInputBar({value, onChange, onSend, placeholder = "Type a message...", isLoading = false}) {
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -27,6 +27,7 @@ function ChatInputBar({value, onChange, onSend, placeholder = "Type a message...
               onChange={(e) => onChange?.(e.target.value)}
               placeholder={placeholder}
               autoComplete="off"
+              disabled={isLoading}
               className={cn(
                 "h-10 border-0 bg-transparent px-0 py-0 shadow-none font-body text-[15px] focus-visible:ring-0 md:text-[15px]",
                 "text-foreground placeholder:text-muted-foreground"
@@ -40,6 +41,7 @@ function ChatInputBar({value, onChange, onSend, placeholder = "Type a message...
             variant="default"
             aria-label="Send message"
             className="size-10 shrink-0"
+            disabled={isLoading}
           >
             <span className="font-material-symbols text-xl leading-none">send</span>
           </Button>
