@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { authenticatedFetch, publicFetch, setToken, removeToken, getToken } from '../utils/api'
+import { authenticatedFetch, setToken, removeToken, getToken } from '@/lib/api'
+import loginApi from '@/apis/login'
+import signupApi from '@/apis/signup'
 
 const AuthContext = createContext(null)
 
@@ -50,32 +52,8 @@ export const AuthProvider = ({ children }) => {
   }, [fetchCurrentUser])
 
   const login = async (username, password) => {
-    // FastAPI users login (OAuth2 password flow) expects form-encoded body
-    const form = new URLSearchParams()
-    form.append('username', username)
-    form.append('password', password)
+    const data = await loginApi({ username, password })
 
-    const res = await publicFetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: form,
-    })
-
-    if (!res.ok) {
-      let message = 'Login failed'
-      try {
-        const data = await res.json()
-        message = data.detail || data.message || message
-      } catch {
-        const text = await res.text().catch(() => '')
-        if (text) message = text
-      }
-      throw new Error(message)
-    }
-
-    const data = await res.json()
     if (!data.access_token) {
       throw new Error('No access token received')
     }
@@ -88,26 +66,8 @@ export const AuthProvider = ({ children }) => {
   }
 
   const signup = async (username, email, password) => {
-    const res = await publicFetch('/api/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ username, email, password }),
-    })
+    await signupApi({ username, email, password })
 
-    if (!res.ok) {
-      let message = 'Signup failed'
-      try {
-        const data = await res.json()
-        message = data.detail || data.message || message
-      } catch {
-        const text = await res.text().catch(() => '')
-        if (text) message = text
-      }
-      throw new Error(message)
-    }
-
-    await res.json() // not really used, but consume body
-
-    // After signup, log in with same credentials
     const loginResult = await login(username, password)
     if (!loginResult.success) {
       throw new Error('Signup succeeded but login failed')
@@ -135,4 +95,3 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
-

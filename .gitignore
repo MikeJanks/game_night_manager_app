@@ -1,60 +1,37 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
+## Root-level Python virtual environments
 env/
 venv/
 .venv/
 ENV/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Database
+## Databases
 *.db
 *.sqlite
 *.sqlite3
 
-# Environment variables
+## Environment variables
 .env
 .env.local
+.env*.local
 
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# Build outputs
-dist/
-build/
+## Logs (root)
 *.log
 
-# IDE
+## Generic build outputs at root
+build/
+dist/
+
+## IDE / editor
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS
+## OS files
 .DS_Store
 Thumbs.db
 
+## Tooling / deployment
 .vercel
-.env*.local
+.cursor

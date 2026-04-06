@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f42559",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#0a0a0c",
+                        "surface": "#131316",
+                        "border-muted": "rgba(255,255,255,0.06)",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"],
+                        "manrope": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+            background-color: #0a0a0c;
+        }
+        .suggestion-chip {
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: background-color 0.2s;
+        }
+        .suggestion-chip:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-slate-100">
+<div class="relative flex h-screen w-full flex-col overflow-hidden">
+<!-- Header -->
+<header class="flex items-center justify-between border-b border-border-muted px-6 md:px-12 py-4 bg-background-dark/50 backdrop-blur-md z-10">
+<div class="flex items-center gap-3">
+<div class="flex items-center justify-center size-8 rounded-lg bg-surface border border-border-muted">
+<span class="material-symbols-outlined text-primary text-xl">forum</span>
+</div>
+<h1 class="text-slate-100 text-lg font-bold leading-tight tracking-tight font-display">Chat</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:flex items-center justify-center px-4 py-2 rounded-lg bg-surface border border-border-muted text-slate-300 text-sm font-medium hover:bg-white/5 transition-colors">
+                    New chat
+                </button>
+<button class="flex md:hidden items-center justify-center size-10 rounded-lg bg-surface border border-border-muted text-slate-300">
+<span class="material-symbols-outlined">add</span>
+</button>
+<div class="h-8 w-[1px] bg-border-muted mx-1"></div>
+<div class="relative group cursor-pointer">
+<div class="size-10 rounded-full border border-border-muted bg-surface overflow-hidden bg-cover bg-center" data-alt="User profile avatar with minimalist design" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDPDTnSHxAftCX1b42I9Oe6LGnuwuNOSisiIklwoCT1s2XlaEvCavfcuislOzzP9wqA-ecu479N0EHVy0_qPMus_nNhGUeU8RdXaEhkAA5zzDAmvqQA6zIU34pReXgWcQ7ptKr2xVlj8FI7YZPdIlcZBxVtmDrFjWz6u5XiVhOOAlRzgUvWrCaVMcHl82ADrlard9wmdyJOKCHpGeV2WP3us_v6FKzY6zYXRxWoU61sZf4-kmrhKLcY5MDgT5pRjnQt9st4Zt8rvUI')">
+</div>
+<div class="absolute bottom-0 right-0 size-3 bg-emerald-500 rounded-full border-2 border-background-dark"></div>
+</div>
+</div>
+</header>
+<!-- Main Content (Empty State) -->
+<main class="flex-1 flex flex-col items-center justify-center px-6">
+<div class="max-w-[560px] w-full flex flex-col items-center text-center animate-in fade-in duration-700">
+<div class="size-20 rounded-2xl bg-surface border border-border-muted flex items-center justify-center mb-8">
+<span class="material-symbols-outlined text-slate-500 text-4xl">sports_esports</span>
+</div>
+<h2 class="text-white text-3xl font-bold tracking-tight mb-3 font-manrope">What's the plan?</h2>
+<p class="text-slate-500 text-base font-normal leading-relaxed mb-10 max-w-sm">
+                    Start a conversation with your group or pick a suggestion below to get things moving.
+                </p>
+<!-- Suggestion Chips -->
+<div class="flex flex-wrap justify-center gap-3 mb-12">
+<button class="suggestion-chip flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface/40 text-slate-300 text-sm font-medium">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">calendar_today</span>
+                        Schedule RPG
+                    </button>
+<button class="suggestion-chip flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface/40 text-slate-300 text-sm font-medium">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">casino</span>
+                        Board Game Night
+                    </button>
+<button class="suggestion-chip flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface/40 text-slate-300 text-sm font-medium">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">person_add</span>
+                        Invite Players
+                    </button>
+</div>
+</div>
+</main>
+<!-- Input Bar Area -->
+<footer class="p-6 md:px-12 md:pb-10 max-w-4xl mx-auto w-full">
+<div class="relative flex items-center bg-surface border border-border-muted rounded-2xl p-2 focus-within:border-slate-700 transition-all shadow-2xl">
+<button class="p-2 text-slate-500 hover:text-slate-300 transition-colors">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-slate-200 placeholder:text-slate-600 px-3 text-sm" placeholder="Type a message or use '/' for commands..." type="text"/>
+<div class="flex items-center gap-1 pr-2">
+<button class="p-2 text-slate-500 hover:text-slate-300 transition-colors">
+<span class="material-symbols-outlined text-[20px]">sentiment_satisfied</span>
+</button>
+<button class="flex items-center justify-center size-10 rounded-xl bg-primary text-white hover:opacity-90 transition-opacity ml-2">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+<div class="mt-4 flex justify-center">
+<p class="text-[10px] text-slate-700 uppercase tracking-widest font-bold">Encrypted End-to-End</p>
+</div>
+</footer>
+</div>
+</body></html>

@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { authenticatedFetch } from '../utils/api'
+import '../legacy-chat.css'
 
 const API_URL = '/api/agents/user'
 const STORAGE_KEY_PREFIX = 'bot_session_conversation_'

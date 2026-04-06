@@ -4,13 +4,14 @@ const DiscordMockup = () => {
       className="perspective-[1000px] relative z-0 flex h-[500px] w-full items-center justify-center lg:ml-12"
     >
       <div
-        className="glass-panel transform-3d transform-[rotateY(-10deg)_rotateX(5deg)] relative z-20 flex w-[400px] flex-col overflow-hidden rounded-xl shadow-2xl"
+        className="bg-white/3 backdrop-blur-md border border-white/8 transform-3d transform-[rotateY(-10deg)_rotateX(5deg)] relative z-20 flex w-[400px] flex-col overflow-hidden rounded-xl shadow-2xl"
       >
         <div
           className="flex items-center justify-between border-b border-white/5 bg-black/20 p-3"
         >
           <div className="flex items-center gap-2">
             <div className="h-5 w-5 text-slate-400">
+              <span className="font-material-symbols text-lg">tag</span>
               <span className="font-material-symbols text-lg">tag</span>
             </div>
             <span className="text-sm font-bold tracking-tight text-white"
@@ -59,7 +60,7 @@ const DiscordMockup = () => {
           </div>
           <div className="mt-1 flex gap-3">
             <div
-              className="from-primary to-accent-purple shadow-primary/20 mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br shadow-lg"
+              className="from-primary to-accent-purple shadow-primary/20 mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br shadow-lg"
             >
               <span className="font-material-symbols text-sm text-white"
                 >smart_toy</span
@@ -130,33 +131,30 @@ const DiscordMockup = () => {
             </div>
           </div>
         </div>
-        <div
-          className="m-2 flex items-center gap-3 rounded-lg border-t border-white/5 bg-black/10 p-3"
-        >
-          <div
-            className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-500"
-          >
-            <span
-              className="font-material-symbols text-[14px] font-bold text-black"
-              >add</span
-            >
+        <div className="m-2 flex items-center gap-3 rounded-lg border-t border-white/5 bg-black/10 p-3">
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-500">
+            <span className="font-material-symbols text-[14px] font-bold text-black">
+              add
+            </span>
           </div>
           <div className="flex-1 text-xs font-medium text-slate-500">
             Message #scheduling
           </div>
           <div className="flex gap-2 text-slate-400">
-            <span className="font-material-symbols text-lg">gif_box</span>
-            <span className="font-material-symbols text-lg"
-              >sentiment_satisfied</span
-            >
+            <span className="font-material-symbols text-lg">
+              gif_box
+            </span>
+            <span className="font-material-symbols text-lg">
+              sentiment_satisfied
+            </span>
           </div>
         </div>
       </div>
       <div
-        className="from-accent-purple/20 border-accent-purple/20 floating-shard-delayed absolute top-12 -right-8 -z-10 h-24 w-24 rotate-15 transform rounded-xl border bg-linear-to-br to-transparent backdrop-blur-md"
+        className="from-accent-purple/20 border-accent-purple/20 floating-shard-delayed absolute top-12 -right-8 -z-10 h-24 w-24 rotate-15 transform rounded-xl border bg-gradient-to-br to-transparent backdrop-blur-md"
       ></div>
       <div
-        className="from-accent-cyan/20 border-accent-cyan/20 floating-shard absolute bottom-16 -left-6 -z-10 h-16 w-16 -rotate-10 transform rounded-lg border bg-linear-to-tl to-transparent backdrop-blur-md"
+        className="from-accent-cyan/20 border-accent-cyan/20 floating-shard absolute bottom-16 -left-6 -z-10 h-16 w-16 -rotate-10 transform rounded-lg border bg-gradient-to-tl to-transparent backdrop-blur-md"
       ></div>
     </div>
   )
