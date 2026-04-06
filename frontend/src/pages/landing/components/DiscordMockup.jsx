@@ -12,6 +12,7 @@ const DiscordMockup = () => {
           <div className="flex items-center gap-2">
             <div className="h-5 w-5 text-slate-400">
               <span className="font-material-symbols text-lg">tag</span>
+              <span className="font-material-symbols text-lg">tag</span>
             </div>
             <span className="text-sm font-bold tracking-tight text-white"
               >scheduling</span
@@ -34,7 +35,7 @@ const DiscordMockup = () => {
           </div>
         </div>
         <div
-          className="flex flex-1 flex-col justify-end space-y-4 bg-gradient-to-b from-transparent to-black/10 p-4"
+          className="flex flex-1 flex-col justify-end space-y-4 bg-linear-to-b from-transparent to-black/10 p-4"
         >
           <div className="group flex gap-3">
             <div
